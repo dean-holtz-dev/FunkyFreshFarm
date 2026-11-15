@@ -67,8 +67,9 @@ changed the plan, and **INFO** marks a recorded fact.
 | 39 | Backup procedure from `docs/01-installation.md` §11 (app stopped) | PASS | `backups/20261115-143711/`: `.db`, `-wal`, `-shm`, `appsettings.Local.json`, `media/`; `git check-ignore` matches `.gitignore:36:backups/` |
 | 40 | Open copies of the backup with a .NET 10 file-based app (Microsoft.Data.Sqlite 10.0.12) | PASS | Full set: `journal_mode=wal`, 79 tables, 1 user, 5 user groups, 48 nodes, 8 content types, 37 data types, 1 language. `.db` copied alone: **0 tables** |
 | 41 | Run 5: restart with default logging | PASS | `Application started`, `serverStatus: Run`, no warnings at startup |
-| 42 | Backoffice usable after restart (owner, MT-07) | NOT RUN | Pending owner confirmation |
-| 43 | Graceful Ctrl+C stop and restart in owner's terminal (MT-08) | NOT RUN | Automated stops terminated the process; the graceful path is untested |
+| 42 | Backoffice usable after restart (owner, MT-07) | PASS | Confirmed by the owner; login screen/backoffice, not the installer |
+| 42a | Front-end placeholder page (owner, MT-09) | PASS | Confirmed by the owner; "No Published Content" page |
+| 43 | Graceful Ctrl+C stop and restart in owner's terminal (MT-08) | PASS | Confirmed by the owner (Windows PowerShell 5.1): clean Ctrl+C shutdown, restart without the installer |
 
 ## Phase 4 — Documentation and Git hygiene
 

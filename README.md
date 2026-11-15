@@ -41,7 +41,7 @@ Exact versions verified on 2026-11-15 (see [docs/verification-log.md](docs/verif
 
 ### Prerequisites
 
-- Windows with PowerShell 7+
+- Windows with PowerShell 7+ (recommended) or Windows PowerShell 5.1; the documented commands work in both
 - .NET 10 SDK (10.0.100 or later feature band)
 - Git
 - A trusted ASP.NET Core HTTPS development certificate (`dotnet dev-certs https --trust`)

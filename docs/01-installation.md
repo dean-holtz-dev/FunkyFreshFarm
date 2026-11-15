@@ -335,7 +335,7 @@ Then start the app and confirm `serverStatus` is `Run`.
 
 Ctrl+C, then `dotnet run ...` again. Expected: no installer, `Run` level, and existing
 backoffice sessions may need to log in again. Installation state lives in the database, so it
-survives restarts. It also survived a forced process kill during verification.
+survives restarts. Verified both ways: a graceful Ctrl+C restart, and a forced process kill.
 
 ### Reset to a fresh install (destructive, not yet exercised)
 

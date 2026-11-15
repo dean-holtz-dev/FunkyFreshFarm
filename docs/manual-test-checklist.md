@@ -16,9 +16,9 @@ Legend: `[x] Pass` · `[ ] Pass` (not yet confirmed) · record failures in **Not
 | MT-04 | Backoffice login over HTTP is rejected (negative test) | Pass | 2026-11-15 |
 | MT-05 | Backoffice login over HTTPS | Pass | 2026-11-15 |
 | MT-06 | System information reports the expected stack | Pass | 2026-11-15 |
-| MT-07 | Backoffice still works after an application restart | **Pending** | |
-| MT-08 | Graceful Ctrl+C stop and restart in your own terminal | **Not run** | |
-| MT-09 | Front-end placeholder page renders | **Not run** | |
+| MT-07 | Backoffice still works after an application restart | Pass | 2026-11-15 |
+| MT-08 | Graceful Ctrl+C stop and restart in your own terminal | Pass | 2026-11-15 |
+| MT-09 | Front-end placeholder page renders | Pass | 2026-11-15 |
 
 ---
 
@@ -127,32 +127,53 @@ returns 428.
 **Expected:** the login screen or backoffice appears, **not** the installer; after login the
 sections from MT-05 are present.
 
-- [ ] Pass
+- [x] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** confirmed by the owner on 2026-11-15.
 
 ## MT-08 — Graceful Ctrl+C stop and restart in your own terminal
 
 Claude Code's verification stopped the app by terminating the process. This test covers the
 normal developer workflow.
 
+Commands work in Windows PowerShell 5.1 and PowerShell 7. Copy each block exactly.
+
 **Steps**
 
-1. Make sure no other instance is running (`Get-Process FunkyFreshFarm.UmbracoLab -ErrorAction SilentlyContinue`
-   should return nothing; stop any instance first).
-2. In your own PowerShell terminal at the repository root, run
-   `dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.UI`.
-3. Wait for `Application started`. Press **Ctrl+C**.
-4. Start it again with the same command and open `https://localhost:44370/umbraco`.
+1. Stop any instance that is already running (for example one started by Claude Code). Check:
 
-**Expected:** step 3 logs `Application is shutting down...` and returns to the prompt without
-errors. Step 4 shows the login screen or backoffice, not the installer.
+   ```powershell
+   Get-Process -Name FunkyFreshFarm.UmbracoLab -ErrorAction SilentlyContinue
+   ```
 
-- [ ] Pass
+   If that lists a process, stop it, then re-run the check; it should print nothing:
+
+   ```powershell
+   Get-Process -Name FunkyFreshFarm.UmbracoLab -ErrorAction SilentlyContinue | Stop-Process
+   ```
+
+2. Go to the repository root and start the app in the foreground:
+
+   ```powershell
+   Set-Location C:\dev\FunkyFreshFarm
+   dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.UI
+   ```
+
+3. Wait for `Application started. Press Ctrl+C to shut down.` Then click in that terminal
+   window and press **Ctrl+C** once.
+4. Start it again in the same terminal (press the Up arrow, then Enter), wait for
+   `Application started`, and open `https://localhost:44370/umbraco`.
+
+**Expected:** step 3 logs `Application is shutting down...` and returns to the `PS C:\dev\FunkyFreshFarm>`
+prompt without errors or stack traces. Step 4 shows the login screen or backoffice, not the installer.
+
+- [x] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** confirmed by the owner on 2026-11-15 in Windows PowerShell 5.1: all steps succeeded.
+The first attempt at step 1 failed only because a trailing period was copied with the command
+(`Stop-Process.`); the steps above now use code blocks to avoid that.
 
 ## MT-09 — Front-end placeholder page renders
 
@@ -163,7 +184,7 @@ errors. Step 4 shows the login screen or backoffice, not the installer.
 **Expected:** Umbraco's "Welcome to your Umbraco installation" / "No Published Content" page
 (there is no content yet in Milestone 1).
 
-- [ ] Pass
+- [x] Pass
 - [ ] Fail
 
-**Notes:** automated check: page title is `Umbraco: No Published Content`.
+**Notes:** confirmed by the owner on 2026-11-15. Automated check: page title is `Umbraco: No Published Content`.
