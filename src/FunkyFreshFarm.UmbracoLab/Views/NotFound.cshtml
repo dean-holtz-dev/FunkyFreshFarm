@@ -1,0 +1,19 @@
+@*
+    Branded 404 page. Umbraco renders the view configured in Umbraco:CMS:Global:NotFoundViewPath
+    (appsettings.json) after setting the 404 status, without a content model, so this view and the
+    shared layout must not depend on Model.
+*@
+@{
+    Layout = "_Layout.cshtml";
+    ViewData["Title"] = "Page not found";
+}
+<section class="not-found container" aria-labelledby="not-found-title">
+    <img src="/brand/lost-1280.jpg" srcset="/brand/lost-640.jpg 640w, /brand/lost-1280.jpg 1280w"
+         sizes="(min-width: 48rem) 48rem, 92vw" width="1280" height="853"
+         alt="Illustration of a puzzled radish holding a signpost on a garden path" decoding="async" />
+    <div>
+        <h1 id="not-found-title">This path leads nowhere</h1>
+        <p class="lead">We couldn't find the page you were looking for. It may have been moved or unpublished.</p>
+        <a class="button button--sun" href="/">Back to the homepage</a>
+    </div>
+</section>

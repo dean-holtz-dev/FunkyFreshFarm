@@ -1,18 +1,104 @@
-/* Funky Fresh Farm — minimal responsive styles. No framework, no build step. */
+/* ==========================================================================
+   Funky Fresh Farm — "Farmstand Funk" design system
+   Plain CSS: custom properties, no framework, no build step.
+   Documented in docs/05-design-system.md.
+   Breakpoints (media queries cannot use custom properties):
+     48rem = 768px tablet, 64rem = 1024px desktop.
+   ========================================================================== */
+
+/* --- Fonts (self-hosted, SIL Open Font License 1.1; see /fonts/OFL-*.txt) --- */
+
+@font-face {
+    font-family: "Fraunces";
+    src: url("/fonts/fraunces-latin-variable.woff2") format("woff2");
+    font-weight: 400 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/fonts/dm-sans-latin-variable.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/fonts/dm-sans-latin-italic-variable.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* --- Design tokens --- */
 
 :root {
-    --color-bg: #fffaf0;
-    --color-surface: #ffffff;
-    --color-text: #2b2620;
-    --color-muted: #6b6257;
-    --color-brand: #2e7d32;
-    --color-brand-dark: #1b5e20;
-    --color-accent: #e65100;
-    --color-border: #e8dfd0;
-    --radius: 12px;
-    --max-width: 64rem;
-    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* Brand palette */
+    --color-basil: #285c47;
+    --color-coral: #e4583e;
+    --color-marigold: #f3bb48;
+    --color-cream: #fff5dc;
+    --color-eggplant: #3e2a47;
+    --color-mint: #a9d7c3;
+
+    /* Semantic roles (contrast ratios in docs/05-design-system.md) */
+    --color-bg: var(--color-cream);
+    --color-surface: #fffbf0;
+    --color-text: var(--color-eggplant);
+    --color-heading: var(--color-basil);
+    --color-link: var(--color-basil);
+    --color-link-hover: var(--color-eggplant);
+    --color-border: #e9dcc0;
+    --color-focus: var(--color-eggplant);
+    --color-focus-on-dark: var(--color-marigold);
+
+    /* Typography */
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --step--1: clamp(0.84rem, 0.82rem + 0.1vw, 0.9rem);
+    --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+    --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
+    --step-2: clamp(1.45rem, 1.3rem + 0.75vw, 1.85rem);
+    --step-3: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
+    --step-4: clamp(2.1rem, 1.7rem + 2vw, 3.4rem);
+    --leading-tight: 1.1;
+    --leading-body: 1.65;
+
+    /* Spacing */
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-s: 0.75rem;
+    --space-m: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+    --space-l: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+    --space-xl: clamp(2rem, 1.6rem + 2vw, 3rem);
+    --space-2xl: clamp(3rem, 2.3rem + 3.5vw, 5rem);
+
+    /* Layout widths: one content width for header, hero, sections, and footer; prose is narrower */
+    --width-content: 80rem;
+    --width-prose: 40rem;
+    --gutter: clamp(1rem, 0.6rem + 2vw, 2rem);
+
+    /* Shape and depth */
+    --radius-s: 0.5rem;
+    --radius-m: 1rem;
+    --radius-l: 1.75rem;
+    --radius-pill: 999px;
+    --shadow-card: 0 1px 0 rgb(62 42 71 / 0.06), 0 12px 28px -18px rgb(62 42 71 / 0.45);
+    --shadow-lift: 0 1px 0 rgb(62 42 71 / 0.06), 0 18px 34px -16px rgb(62 42 71 / 0.5);
+
+    /* Decorative "groovy stripe" bands from the brand board's graphic language */
+    --stripe-bands: linear-gradient(
+        to bottom,
+        var(--color-coral) 0 25%,
+        var(--color-marigold) 25% 50%,
+        var(--color-mint) 50% 75%,
+        var(--color-basil) 75% 100%
+    );
 }
+
+/* --- Base --- */
 
 *,
 *::before,
@@ -20,54 +106,151 @@
     box-sizing: border-box;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
-    font-family: var(--font);
-    line-height: 1.6;
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: var(--leading-body);
     color: var(--color-text);
     background: var(--color-bg);
 }
 
-img {
+img,
+picture {
+    display: block;
     max-width: 100%;
     height: auto;
-    display: block;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    color: var(--color-heading);
+    margin: 0 0 var(--space-s);
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: var(--step-4);
+    font-weight: 800;
+}
+
+h2 {
+    font-size: var(--step-3);
+}
+
+h3 {
+    font-size: var(--step-2);
+}
+
+p {
+    margin: 0 0 var(--space-m);
 }
 
 a {
-    color: var(--color-brand-dark);
+    color: var(--color-link);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
 }
 
-a:focus-visible {
-    outline: 3px solid var(--color-accent);
-    outline-offset: 2px;
+a:hover {
+    color: var(--color-link-hover);
 }
 
-.container {
-    width: 100%;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 1rem;
+:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 .skip-link {
     position: absolute;
-    left: -999px;
+    left: var(--space-m);
+    top: -10rem;
+    z-index: 10;
+    padding: var(--space-xs) var(--space-m);
+    background: var(--color-eggplant);
+    color: var(--color-cream);
+    border-radius: var(--radius-s);
 }
 
 .skip-link:focus {
-    left: 1rem;
-    top: 1rem;
-    padding: 0.5rem 1rem;
-    background: var(--color-surface);
-    z-index: 10;
+    top: var(--space-m);
 }
 
-/* Header and navigation */
+.container {
+    width: 100%;
+    max-width: var(--width-content);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+}
+
+/* --- Buttons --- */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 0.7em 1.35em;
+    border: 2px solid var(--color-basil);
+    border-radius: var(--radius-pill);
+    background: var(--color-basil);
+    color: var(--color-cream);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--step-0);
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.button:hover {
+    background: var(--color-eggplant);
+    border-color: var(--color-eggplant);
+    color: var(--color-cream);
+}
+
+/* Marigold call to action: Eggplant on Marigold is 7.38:1. */
+.button--sun {
+    background: var(--color-marigold);
+    border-color: var(--color-eggplant);
+    color: var(--color-eggplant);
+}
+
+.button--sun:hover {
+    background: var(--color-eggplant);
+    color: var(--color-cream);
+}
+
+/* --- Header and navigation --- */
 
 .site-header {
-    background: var(--color-brand);
-    color: #fff;
+    position: relative;
+    background: var(--color-cream);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.site-header::after {
+    content: "";
+    display: block;
+    height: 0.5rem;
+    background: var(--stripe-bands);
 }
 
 .site-header__inner {
@@ -75,211 +258,535 @@ a:focus-visible {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem 1.5rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    gap: var(--space-s) var(--space-l);
+    padding-block: var(--space-s);
 }
 
 .brand {
-    color: #fff;
-    font-size: 1.35rem;
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    color: var(--color-basil);
     text-decoration: none;
+}
+
+.brand__emblem {
+    width: 3rem;
+    height: 3rem;
+}
+
+.brand__name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-2);
+    line-height: 1;
+    letter-spacing: -0.01em;
+}
+
+.brand:hover .brand__name {
+    color: var(--color-eggplant);
 }
 
 .site-nav ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1rem;
+    gap: var(--space-2xs) var(--space-xs);
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .site-nav a {
-    color: #fff;
+    display: inline-block;
+    padding: 0.45em 1em;
+    border-radius: var(--radius-pill);
+    color: var(--color-eggplant);
+    font-weight: 600;
     text-decoration: none;
-    padding: 0.25rem 0;
-    border-bottom: 2px solid transparent;
 }
 
-.site-nav a:hover,
+.site-nav a:hover {
+    background: var(--color-surface);
+    color: var(--color-basil);
+}
+
 .site-nav a.is-active {
-    border-bottom-color: #fff;
+    background: var(--color-mint);
+    color: var(--color-eggplant);
 }
 
-/* Page content */
+/* --- Page structure --- */
 
 main {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-}
-
-h1,
-h2 {
-    line-height: 1.2;
+    display: block;
+    padding-bottom: var(--space-2xl);
 }
 
 .page-header {
-    margin-bottom: 1.5rem;
+    max-width: var(--width-prose);
+    padding-top: var(--space-xl);
+    margin-bottom: var(--space-l);
 }
 
-.page-header h1 {
-    margin-bottom: 0.25rem;
+.page-header--center {
+    margin-inline: auto;
+    text-align: center;
+}
+
+.eyebrow {
+    margin: 0 0 var(--space-xs);
+    color: var(--color-basil);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 1.75rem;
+    height: 0.3rem;
+    margin-right: var(--space-xs);
+    vertical-align: middle;
+    border-radius: var(--radius-pill);
+    background: var(--color-coral);
 }
 
 .lead {
-    font-size: 1.15rem;
-    color: var(--color-muted);
-    max-width: 42rem;
-}
-
-.hero {
-    padding: 3rem 0;
-}
-
-.hero h1 {
-    font-size: clamp(2rem, 6vw, 3.25rem);
-    color: var(--color-brand-dark);
-    margin-top: 0;
+    font-size: var(--step-1);
+    line-height: 1.5;
 }
 
 .scientific-name {
     font-style: italic;
-    color: var(--color-muted);
-    margin: 0;
+    color: var(--color-basil);
 }
 
 .empty-state {
-    padding: 1rem;
-    border: 1px dashed var(--color-border);
-    border-radius: var(--radius);
-    color: var(--color-muted);
+    padding: var(--space-l);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
 }
 
-/* Plant directory */
+.back-link {
+    margin: var(--space-l) 0 var(--space-m);
+    font-weight: 600;
+}
 
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    margin-bottom: var(--space-l);
+}
+
+.section-heading h2 {
+    margin: 0;
+}
+
+.section-footer {
+    margin-top: var(--space-l);
+}
+
+/* --- Home: hero --- */
+
+/* The hero lines up with the content edges: the content width minus the container gutters. */
+.hero {
+    position: relative;
+    display: grid;
+    max-width: calc(var(--width-content) - 2 * var(--gutter));
+    margin: var(--space-m) auto 0;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+/* Below 64rem the artwork is shown whole and the text panel sits under it, overlapping its
+   bottom edge; from 64rem the panel overlays the artwork's cream sky. */
+.hero {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.hero__art {
+    grid-area: 1 / 1;
+}
+
+.hero__art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero__content {
+    grid-area: 2 / 1;
+    position: relative;
+    margin: calc(-1 * var(--space-xl)) var(--space-m) 0;
+    padding: var(--space-l);
+    background: rgb(255 245 220 / 0.96);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-card);
+}
+
+.hero__content h1 {
+    color: var(--color-eggplant);
+    font-size: var(--step-4);
+}
+
+.hero__content p {
+    font-size: var(--step-1);
+    line-height: 1.5;
+}
+
+@media (min-width: 48rem) {
+    .hero {
+        margin-inline: var(--gutter);
+    }
+
+    .hero__art img {
+        border-radius: var(--radius-l);
+    }
+}
+
+@media (min-width: 64rem) {
+    .hero {
+        border-radius: var(--radius-l);
+    }
+
+    .hero__content {
+        grid-area: 1 / 1;
+        align-self: start;
+        justify-self: start;
+        max-width: 32rem;
+        margin: var(--space-xl);
+    }
+}
+
+@media (min-width: 80rem) {
+    .hero {
+        margin-inline: auto;
+    }
+}
+
+/* --- Home: featured plants and story --- */
+
+.featured,
+.story {
+    margin-top: var(--space-2xl);
+}
+
+.sticker {
+    width: 6rem;
+    height: 6rem;
+    flex-shrink: 0;
+    transform: rotate(8deg);
+}
+
+.story__panel {
+    display: grid;
+    gap: var(--space-l);
+    align-items: center;
+    padding: var(--space-l);
+    border-radius: var(--radius-l);
+    background: var(--color-mint);
+}
+
+.story__panel h2 {
+    color: var(--color-eggplant);
+}
+
+.story__art img {
+    width: 100%;
+    border-radius: var(--radius-m);
+    border: 4px solid var(--color-cream);
+}
+
+.story__art {
+    margin: 0;
+}
+
+@media (min-width: 64rem) {
+    .story__panel {
+        grid-template-columns: 1.1fr 1fr;
+        padding: var(--space-xl);
+    }
+}
+
+/* --- Plant cards (home and directory) --- */
+
+/* Explicit columns (1, 2, 3) keep cards predictable for any number of plants. */
 .plant-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-l);
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
+@media (min-width: 36rem) {
+    .plant-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 64rem) {
+    .plant-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
 .plant-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
 }
 
 .plant-card__link {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: 100%;
-    padding-bottom: 1rem;
     color: inherit;
     text-decoration: none;
 }
 
-.plant-card__link:hover .plant-card__name {
-    text-decoration: underline;
-}
-
 .plant-card__image {
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1;
     object-fit: cover;
+    background: var(--color-cream);
 }
 
 .image-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: repeating-linear-gradient(45deg, #f3ece0, #f3ece0 10px, #efe6d6 10px, #efe6d6 20px);
-    color: var(--color-muted);
-    font-size: 0.9rem;
+    display: grid;
+    place-items: center;
+    background:
+        repeating-linear-gradient(-45deg, rgb(169 215 195 / 0.45) 0 14px, transparent 14px 28px),
+        var(--color-cream);
+    color: var(--color-eggplant);
+    font-weight: 600;
+}
+
+.plant-card__body {
+    padding: var(--space-m);
 }
 
 .plant-card__name {
-    font-size: 1.2rem;
-    margin: 0.75rem 1rem 0.25rem;
+    margin-bottom: var(--space-2xs);
+    font-size: var(--step-2);
 }
 
-.plant-card .scientific-name,
+.plant-card__link:hover .plant-card__name {
+    color: var(--color-eggplant);
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+}
+
+.plant-card .scientific-name {
+    margin-bottom: var(--space-s);
+}
+
 .plant-card__sun {
-    margin: 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0.2em 0.75em;
+    border-radius: var(--radius-pill);
+    background: var(--color-mint);
+    color: var(--color-eggplant);
+    font-size: var(--step--1);
+    font-weight: 700;
 }
 
-.plant-card__sun {
-    font-size: 0.9rem;
-    color: var(--color-muted);
+@media (prefers-reduced-motion: no-preference) {
+    .plant-card {
+        transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .plant-card:hover,
+    .plant-card:focus-within {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lift);
+    }
 }
 
-/* Plant detail */
+/* --- Plant profile --- */
 
-.back-link {
-    margin-top: 0;
+.plant-profile__layout {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
 }
 
 .plant__image {
-    margin: 0 0 1.5rem;
-    max-width: 50rem;
+    margin: 0;
+    padding: var(--space-s);
+    border-radius: var(--radius-l);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
 }
 
 .plant__image img {
-    border-radius: var(--radius);
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-m);
+}
+
+.plant-profile h1 {
+    margin-bottom: var(--space-2xs);
+}
+
+.plant-profile .scientific-name {
+    font-size: var(--step-1);
+    margin-bottom: var(--space-l);
 }
 
 .plant__description {
-    max-width: 42rem;
+    font-size: var(--step-1);
+    line-height: 1.6;
+    max-width: var(--width-prose);
 }
 
 .facts {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 0.25rem 1rem;
-    padding: 1rem;
-    max-width: 42rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    gap: var(--space-xs) var(--space-l);
+    max-width: var(--width-prose);
+    margin: var(--space-l) 0 0;
+    padding: var(--space-m) var(--space-l);
+    border-radius: var(--radius-m);
+    background: var(--color-mint);
+    color: var(--color-eggplant);
 }
 
 .facts dt {
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .facts dd {
     margin: 0;
 }
 
-/* Rich text (Growing Guide) */
+@media (min-width: 48rem) {
+    .plant-profile__layout:has(.plant__image) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    }
+}
+
+/* --- Growing guide --- */
+
+.guide__art {
+    max-width: 56rem;
+    margin: 0 auto var(--space-xl);
+}
+
+.guide__art img {
+    width: 100%;
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+}
 
 .rich-text {
-    max-width: 42rem;
+    max-width: var(--width-prose);
+    margin-inline: auto;
+    font-size: var(--step-1);
+    line-height: 1.7;
 }
 
 .rich-text h2 {
-    margin-top: 2rem;
-    color: var(--color-brand-dark);
+    margin-top: var(--space-xl);
+    font-size: var(--step-2);
 }
 
-/* Footer */
+.rich-text ul {
+    padding-left: 1.2em;
+}
+
+.rich-text li::marker {
+    color: var(--color-coral);
+}
+
+.rich-text li p {
+    margin-bottom: var(--space-xs);
+}
+
+.rich-text strong {
+    color: var(--color-basil);
+}
+
+/* --- Not found --- */
+
+.not-found {
+    display: grid;
+    gap: var(--space-l);
+    justify-items: center;
+    max-width: 48rem;
+    margin: var(--space-xl) auto 0;
+    text-align: center;
+}
+
+.not-found img {
+    width: 100%;
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+}
+
+/* --- Footer --- */
 
 .site-footer {
-    border-top: 1px solid var(--color-border);
-    color: var(--color-muted);
-    font-size: 0.9rem;
+    background: var(--color-eggplant);
+    color: var(--color-cream);
 }
 
-@media (max-width: 40rem) {
-    .hero {
-        padding: 1.5rem 0;
-    }
+.site-footer::before {
+    content: "";
+    display: block;
+    height: 0.75rem;
+    background: var(--stripe-bands);
+}
 
-    .facts {
-        grid-template-columns: 1fr;
-    }
+.site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+    padding-block: var(--space-xl);
+}
+
+.site-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 800;
+}
+
+.site-footer__brand img {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.site-footer p {
+    margin: 0;
+    max-width: 30rem;
+    font-size: var(--step--1);
+}
+
+.site-footer a {
+    color: var(--color-mint);
+}
+
+.site-footer a:hover {
+    color: var(--color-marigold);
+}
+
+.site-footer :focus-visible {
+    outline-color: var(--color-focus-on-dark);
 }

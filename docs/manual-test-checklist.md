@@ -7,6 +7,7 @@ only after the owner confirms it.
 - [Milestone 1 — Installation](#milestone-1--installation) (MT-01 to MT-09)
 - [Milestone 2 — Content model and rendering](#milestone-2--content-model-and-rendering) (MT-10 to MT-20)
 - [Milestone 3 — Delivery API and extensibility](#milestone-3--delivery-api-and-extensibility) (MT-21 to MT-26)
+- [Milestone 5 — Visual identity](#milestone-5--visual-identity) (MT-27 to MT-32)
 
 # Milestone 1 — Installation
 
@@ -363,3 +364,86 @@ aggregator frames. Continue, and the log line appears.
 - [ ] Fail
 
 **Notes:** skipped by the owner's decision on 2026-11-15 (optional; time constraints). Not a failure.
+
+---
+
+# Milestone 5 — Visual identity
+
+Milestone 4 had no manual tests (documentation and read-only investigation only).
+
+Automated checks so far: Claude Code verified every page at 375, 768 and 1440 px through headless Edge
+(DevTools Protocol device emulation: no horizontal overflow, no broken images, correct hero source
+per width) and reviewed the screenshots. **That is not visual approval**; MT-31 and MT-32 are.
+
+## Summary
+
+| ID | Test | Outcome | Date |
+|---|---|---|---|
+| MT-27 | Upload the three botanical illustrations to Media → Plants | **Not run** | |
+| MT-28 | Assign them as each plant's Plant Image; Save and publish | **Not run** | |
+| MT-29 | Add `storyHeading` / `storyText` to Home Page; fill and publish | **Not run** | |
+| MT-30 | Run all four test scripts in your own terminal | **Not run** | |
+| MT-31 | Visual review at 375, 768, 1440 px | **Not run** | |
+| MT-32 | Keyboard and focus review | **Not run** | |
+
+## MT-27 to MT-29 — Content steps
+
+Follow the procedures in [05-assets.md §5](05-assets.md#5-owner-procedures-manual) (purpose,
+navigation, exact values, expected results, troubleshooting).
+
+- [ ] MT-27 Pass   - [ ] Fail   **Notes:**
+- [ ] MT-28 Pass   - [ ] Fail   **Notes:**
+- [ ] MT-29 Pass   - [ ] Fail   **Notes:**
+
+## MT-30 — Test scripts
+
+With the app running, in a PowerShell window at `C:\dev\FunkyFreshFarm`:
+
+```powershell
+pwsh ./scripts/Test-BrandAssets.ps1
+```
+
+```powershell
+pwsh ./scripts/Test-Site.ps1
+```
+
+```powershell
+pwsh ./scripts/Test-DeliveryApi.ps1
+```
+
+```powershell
+dotnet test FunkyFreshFarm.slnx --no-build
+```
+
+**Expected:** Brand 37/37 (the three "Botanical" checks pass after MT-28), Site 10/10, Delivery API
+14/14, unit tests 3/3. The site test should then report "3 cards: 3 image(s), 0 placeholder(s)".
+
+- [ ] Pass   - [ ] Fail   **Notes:**
+
+## MT-31 — Visual review at three widths
+
+In Edge or Chrome: open the page, press **F12**, then **Ctrl+Shift+M** (device toolbar), and set the
+width to 375, then 768, then 1440 (or use **Responsive** and type the width). Press **Ctrl+F5** once
+first so the new CSS and fonts load.
+
+| Page | Check |
+|---|---|
+| `/` | Header: emblem + "Funky Fresh Farm" in the serif font; Home pill highlighted. Hero: below 1024 px the artwork is fully visible and the text panel overlaps its bottom; at 1440 the panel sits over the cream sky on the left. Headline readable, "Explore Our Plants" button. Featured plants: three cards with botanical illustrations, square and uncropped, radish sticker beside the heading. Story panel (after MT-29). Footer: dark purple with stripe bands |
+| `/plants/` | "Plant directory" label, "Our Plants", three square illustrated cards (1, 2, or 3 columns by width) |
+| `/plants/heirloom-tomato/` | Two columns from 768 px: framed illustration left, "Plant profile", name, italic Latin name, description, Mint "Sun exposure" panel |
+| `/plants/basil/` | Heading "Basil" (Name fallback); illustration |
+| `/growing-guide/` | Centred title, life-cycle illustration, comfortable reading column, Coral bullet markers |
+| `/any-missing-page/` | Lost-radish illustration, "This path leads nowhere", Marigold button home; status 404 |
+
+At every width: no sideways scrolling, no distorted or stretched illustrations, no text over busy artwork.
+
+- [ ] Pass   - [ ] Fail   **Notes:**
+
+## MT-32 — Keyboard and focus
+
+1. Reload `/` and press **Tab**: "Skip to content" appears first; **Enter** moves to the main content.
+2. Keep pressing **Tab** through the header, hero button, cards, and footer: every focused element shows a
+   clear dark outline (gold outline in the footer).
+3. Open a plant card with **Enter**.
+
+- [ ] Pass   - [ ] Fail   **Notes:**

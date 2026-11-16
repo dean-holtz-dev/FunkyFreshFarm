@@ -11,10 +11,18 @@
 	// It is trusted backoffice input; Umbraco's default IHtmlSanitizer is a no-op.
 	var hasBody = !string.IsNullOrWhiteSpace(Model.BodyText?.ToHtmlString());
 }
-<article class="guide">
-	<header class="page-header">
+<article class="guide container">
+	<header class="page-header page-header--center">
+		<p class="eyebrow">Growing guide</p>
 		<h1>@title</h1>
 	</header>
+
+	@* Brand illustration for the guide template (static asset); see docs/05-assets.md. *@
+	<figure class="guide__art">
+		<img src="/brand/guide-1280.jpg" srcset="/brand/guide-640.jpg 640w, /brand/guide-1280.jpg 1280w"
+			 sizes="(min-width: 56rem) 56rem, 92vw" width="1280" height="853"
+			 alt="Illustration of a tomato plant growing from seed to sprout to a fruiting vine" decoding="async" />
+	</figure>
 
 	@if (hasBody)
 	{

@@ -1,0 +1,41 @@
+@using Umbraco.Cms.Web.Common.PublishedModels
+@model (PlantPage Plant, int HeadingLevel, bool LazyImage)
+@*
+    One plant card, shared by the homepage's featured plants and the plant directory.
+    The image alt text is empty because the plant's name follows inside the same link.
+*@
+@{
+    var plant = Model.Plant;
+    var name = string.IsNullOrWhiteSpace(plant.CommonName) ? plant.Name : plant.CommonName;
+}
+<li class="plant-card">
+    <a class="plant-card__link" href="@plant.Url()">
+        @if (plant.PlantImage is not null)
+        {
+            @await Html.PartialAsync("PlantIllustration", (plant.PlantImage, string.Empty, "plant-card__image",
+                "(min-width: 64rem) 22rem, (min-width: 48rem) 45vw, 92vw", new[] { 320, 480, 640, 800 }, Model.LazyImage))
+        }
+        else
+        {
+            <div class="plant-card__image image-placeholder" aria-hidden="true">No image yet</div>
+        }
+        <div class="plant-card__body">
+            @if (Model.HeadingLevel == 2)
+            {
+                <h2 class="plant-card__name">@name</h2>
+            }
+            else
+            {
+                <h3 class="plant-card__name">@name</h3>
+            }
+            @if (!string.IsNullOrWhiteSpace(plant.ScientificName))
+            {
+                <p class="scientific-name">@plant.ScientificName</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(plant.SunExposure))
+            {
+                <p class="plant-card__sun"><span aria-hidden="true">&#9728;</span><span class="visually-hidden">Sun exposure:</span> @plant.SunExposure</p>
+            }
+        </div>
+    </a>
+</li>

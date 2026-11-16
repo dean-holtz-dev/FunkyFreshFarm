@@ -4,6 +4,7 @@
 - [Milestone 2 — Content modelling and Razor rendering](#milestone-2--content-modelling-and-razor-rendering)
 - [Milestone 3 — Content Delivery API and .NET extensibility](#milestone-3--content-delivery-api-and-net-extensibility)
 - [Milestone 4 — Source exploration and engineering review](#milestone-4--source-exploration-and-engineering-review)
+- [Milestone 5 — Visual identity](#milestone-5--visual-identity)
 
 # Milestone 1 — Installation and project foundation
 
@@ -303,3 +304,66 @@ changed the plan, and **INFO** marks a recorded fact.
 | Content model not source-controlled | New environments need hand recreation | Recommendation in 04 §5 |
 | Backups on the same disk | Single point of failure | Recommendation in 04 §5 |
 | Full restore drill not performed | Restore steps untested end to end | Backup integrity verified; swap needs approval |
+
+---
+
+# Milestone 5 — Visual identity
+
+| | |
+|---|---|
+| Date | 2026-11-15 (overnight; times local, UTC−06:00) |
+| Scope | Design tokens, fonts, brand-asset pipeline, redesigned Razor templates, branded 404, tests, docs |
+| Automated checks | Claude Code, against the owner's running app (PID 28456). Razor and CSS changes are compiled at runtime, so no restart was needed |
+| Manual checks | Owner, MT-27 to MT-32 (pending) |
+| Git revision | Baseline `e4b329a`. This log is part of the Milestone 5 commit |
+
+## Inspection and inputs
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M5-1 | PNG headers of `assets/images/*` | PASS | 12 valid PNGs; dimensions and colour types in 05-assets.md §2 |
+| M5-2 | Pixel scan for transparency; 400 px previews (scratch, ImageSharp, read-only) | PASS | Emblem and sticker truly transparent; others opaque; originals' SHA-256 unchanged |
+| M5-3 | ImageSharp 3.2.0 build of the scratch tool | FINDING | "No Six Labors license found … Release builds require a valid license". So the committed pipeline uses System.Drawing |
+| M5-4 | Visual review of all 12 originals | PASS | Roles assigned (05-assets.md §2); footer botanical pattern **not supplied** (documented, CSS bands used) |
+| M5-5 | Umbraco source: `ImageUrlGenerationOptions.Format`, WebP encoder | PASS | `format=webp` supported; `ConfigureImageSharpMiddlewareOptions.cs:142-148` |
+| M5-6 | Umbraco source: `GlobalSettings.NotFoundViewPath` | PASS | Setting exists (`GlobalSettings.cs:281`); `PublishedContentNotFoundResult` sets 404 then reads it via `IOptionsMonitor` (live reload) |
+| M5-7 | WCAG contrast for all palette pairs | PASS | Table in 05-design-system.md §2 (body 11.89:1; Coral/Marigold never used as text on Cream) |
+| M5-8 | Font licences (`google/fonts` OFL.txt) and Google Fonts CSS API | PASS | Fraunces and DM Sans: SIL OFL 1.1; three latin variable WOFF2 files (signature `wOF2`, 206 KB total) self-hosted |
+
+## Implementation and automated verification
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M5-9 | `scripts/Build-BrandAssets.ps1` (Windows PowerShell 5.1) | PASS | 19 derivatives, 3.58 MB; originals unchanged (hashes compared) |
+| M5-10 | All pages after template changes (no restart) | PASS | 6 pages 200, no compilation errors; CSS, fonts, brand files served with correct types |
+| M5-11 | `appsettings.json` `NotFoundViewPath` (live) | PASS | Unknown URL → **404** with the branded page |
+| M5-12 | Signed WebP crops for media (`PlantIllustration` partial) | PASS | 320/480/640/800w → 200 `image/webp` (RIFF/WEBP); tampered `hmac` → 400 |
+| M5-13 | Headless Edge `--window-size` screenshots | FINDING | Below about 500 px the desktop minimum window width distorts layout; switched to DevTools Protocol device emulation |
+| M5-14 | CDP emulation, 6 pages × 375/768/1440 | PASS | No horizontal overflow, 0 broken images, all fonts loaded; hero `hero-tall-480.jpg` at 375, `hero-wide-960.jpg` at 768, `hero-wide-1440.jpg` at 1440 |
+| M5-15 | Screenshot review | FINDING → FIXED | Misaligned widths, sparse grid, sticker position, hero panel hiding artwork below 1024 px. Fixed: one content width, explicit 1/2/3-column grid, sticker beside heading, stacked hero below 64rem. Re-verified (M5-14) |
+| M5-16 | `Test-Site.ps1` (structural image checks) | PASS | 10/10 ("3 cards: 2 images, 1 placeholder") |
+| M5-17 | `Test-DeliveryApi.ps1` (relaxed placeholder assertions) | PASS | 14/14 |
+| M5-18 | `Test-BrandAssets.ps1` | EXPECTED FAIL | 34 pass; 3 "PENDING owner step" (botanical illustrations not yet assigned) |
+| M5-19 | `Test-BrandAssets.ps1 -SkipCms` (PS 7 and 5.1) | PASS | 34/34 |
+| M5-20 | Phase 7 diff review | PASS / FIXED | No unrelated changes, no unused CSS, no new packages; schema change (`storyHeading`, `storyText`) documented in 02 §3 and 05-assets §5; stale image references in 02 and 03 corrected |
+
+## Pending (owner)
+
+| # | Item | Status |
+|---|---|---|
+| M5-21 | MT-27/28: upload and assign botanical illustrations | NOT RUN |
+| M5-22 | MT-29: add farm-story properties and content | NOT RUN |
+| M5-23 | MT-30: run all test scripts | NOT RUN |
+| M5-24 | MT-31/32: visual and keyboard review | NOT RUN |
+
+## Known issues (Milestone 5)
+
+| Issue | Impact | Status |
+|---|---|---|
+| Botanical illustrations not yet in the Media Library | Plants still show placeholders; `Test-BrandAssets.ps1` reports 3 PENDING | Owner steps MT-27/28 |
+| Farm-story section hidden | Homepage lacks the story panel until content exists | Owner step MT-29 |
+| 404 page has no navigation | Umbraco renders it without a content model | Logo and button link home; acceptable |
+| Footer botanical pattern not supplied | Footer uses CSS stripe bands | Replace if artwork is supplied |
+| Largest JPEGs 330–485 KB (screen-print texture) | Heavier desktop pages | `srcset` serves smaller files to small screens; could add WebP derivatives later |
+| Originals (32.6 MB) untracked | Derivatives cannot be rebuilt on another machine | Owner decision: commit (LFS), archive elsewhere, or ignore |
+| Placeholder media items remain in the Media Library | Clutter after MT-28 | Optional cleanup by the owner |

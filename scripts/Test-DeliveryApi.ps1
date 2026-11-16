@@ -190,9 +190,10 @@ $checks = {
         Assert-That $f ((Get-Count $images) -eq 1) "plantImage has $(Get-Count $images) item(s), expected 1"
         if ((Get-Count $images) -ge 1) {
             $image = @($images)[0]
+            # Structural, so it holds for the placeholder and for the botanical illustration (Milestone 5).
             Assert-That $f ((Get-Field $image 'mediaType') -eq 'Image') "plantImage mediaType is '$(Get-Field $image 'mediaType')'"
-            Assert-That $f ([string](Get-Field $image 'url') -match '^/media/[^/]+/heirloom-tomato\.png$') "plantImage url is '$(Get-Field $image 'url')'"
-            Assert-That $f ((Get-Field $image 'width') -eq 800 -and (Get-Field $image 'height') -eq 600) 'plantImage is not 800x600'
+            Assert-That $f ([string](Get-Field $image 'url') -match '^/media/[^/]+/[^/]+\.(png|jpe?g|webp)$') "plantImage url is '$(Get-Field $image 'url')'"
+            Assert-That $f ([int](Get-Field $image 'width') -gt 0 -and [int](Get-Field $image 'height') -gt 0) 'plantImage has no dimensions'
         }
         "GET $($r.Path) -> 200 Solanum lycopersicum, Full Sun, 1 image (id $script:tomatoId)"
     }
@@ -209,14 +210,20 @@ $checks = {
         "GET $($r.Path) -> 200 commonName=null, name 'Basil', 1 image"
     }
 
-    Invoke-Check 'Plant item: Zinnia (no image)' {
+    Invoke-Check 'Plant item: Zinnia' {
         param($f)
         $r = Invoke-Api '/content/item/plants/zinnia/'
         if (-not (Assert-Status $f $r 200)) { return }
         $j = $r.Json
-        Assert-That $f ((Get-Count (Get-Field $j 'properties.plantImage')) -eq 0) 'plantImage should be empty'
+        # Zinnia had no image until Milestone 5; either state is valid, but an image must be a single Image.
+        $images = Get-Field $j 'properties.plantImage'
+        $count = Get-Count $images
+        Assert-That $f ($count -le 1) "plantImage has $count items, expected 0 or 1"
+        if ($count -eq 1) {
+            Assert-That $f ((Get-Field @($images)[0] 'mediaType') -eq 'Image') "plantImage mediaType is '$(Get-Field @($images)[0] 'mediaType')'"
+        }
         Assert-That $f ((Get-Field $j 'properties.scientificName') -eq 'Zinnia elegans') "scientificName is '$(Get-Field $j 'properties.scientificName')'"
-        "GET $($r.Path) -> 200 plantImage=null"
+        "GET $($r.Path) -> 200 plantImage items=$count"
     }
 
     Invoke-Check 'Guide item (rich text as HTML markup)' {

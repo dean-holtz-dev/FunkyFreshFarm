@@ -130,7 +130,7 @@ Homepage, `GET /umbraco/delivery/api/v2/content/item/`:
 }
 ```
 
-Plant, `GET /umbraco/delivery/api/v2/content/item/plants/heirloom-tomato/` (`route` and dates trimmed):
+Plant, `GET /umbraco/delivery/api/v2/content/item/plants/heirloom-tomato/` (`route` and dates trimmed; captured in Milestone 3, when the placeholder image was assigned):
 
 ```json
 {
@@ -271,9 +271,9 @@ In Windows PowerShell 5.1, use `powershell -ExecutionPolicy Bypass -File scripts
 | Homepage item | `contentType` `homePage`, `route.path` `/`, non-empty `heroHeadline` and `introText` |
 | Plant directory item | `plantIndexPage`, `pageTitle` `Our Plants` |
 | Directory children query | `total` > 0 (else an index hint), first three names in tree order, all `plantPage`, routes under `/plants/` |
-| Heirloom Tomato | names, `Full Sun`, two-line `description`, one `Image` at `/media/.../heirloom-tomato.png`, 800×600 |
+| Heirloom Tomato | names, `Full Sun`, two-line `description`, one `Image` under `/media/` with positive dimensions (relaxed in Milestone 5 from the placeholder's exact file and 800×600) |
 | Basil | `commonName` **null** (raw value, no Razor fallback), one image |
-| Zinnia | `plantImage` empty |
+| Zinnia | `plantImage` empty or a single `Image` (Zinnia gained an illustration in Milestone 5) |
 | Guide | `pageTitle`; `bodyText.markup` contains `<h2>`, `<ul>`, `<strong>` |
 | Item by GUID id | Same node as the route lookup |
 | Filter by content type | The three plants, all `plantPage` |

@@ -1,4 +1,3 @@
-@using Umbraco.Cms.Core.Models;
 @using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.PlantIndexPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
@@ -11,46 +10,28 @@
 	// The directory is the node's published Plant Page children, in backoffice sort order.
 	var plants = Model.Children<ContentModels.PlantPage>().ToList();
 }
-<header class="page-header">
-	<h1>@title</h1>
-	@if (!string.IsNullOrWhiteSpace(Model.IntroText))
-	{
-		<p class="lead">@Html.ReplaceLineBreaks(Model.IntroText)</p>
-	}
-</header>
-
-@if (plants.Count == 0)
-{
-	<p class="empty-state">No plants have been published yet.</p>
-}
-else
-{
-	<ul class="plant-grid">
-		@foreach (var plant in plants)
+<div class="container">
+	<header class="page-header">
+		<p class="eyebrow">Plant directory</p>
+		<h1>@title</h1>
+		@if (!string.IsNullOrWhiteSpace(Model.IntroText))
 		{
-			var name = string.IsNullOrWhiteSpace(plant.CommonName) ? plant.Name : plant.CommonName;
-			<li class="plant-card">
-				<a class="plant-card__link" href="@plant.Url()">
-					@if (plant.PlantImage is not null)
-					{
-						<img class="plant-card__image" src="@plant.PlantImage.GetCropUrl(width: 480, height: 360, imageCropMode: ImageCropMode.Crop)"
-							 alt="" width="480" height="360" loading="lazy" />
-					}
-					else
-					{
-						<div class="plant-card__image image-placeholder" aria-hidden="true">No image yet</div>
-					}
-					<h2 class="plant-card__name">@name</h2>
-					@if (!string.IsNullOrWhiteSpace(plant.ScientificName))
-					{
-						<p class="scientific-name">@plant.ScientificName</p>
-					}
-					@if (!string.IsNullOrWhiteSpace(plant.SunExposure))
-					{
-						<p class="plant-card__sun">Sun: @plant.SunExposure</p>
-					}
-				</a>
-			</li>
+			<p class="lead">@Html.ReplaceLineBreaks(Model.IntroText)</p>
 		}
-	</ul>
-}
+	</header>
+
+	@if (plants.Count == 0)
+	{
+		<p class="empty-state">No plants have been published yet.</p>
+	}
+	else
+	{
+		<ul class="plant-grid">
+			@for (var i = 0; i < plants.Count; i++)
+			{
+				@* The first row is likely above the fold, so only later cards load lazily. *@
+				@await Html.PartialAsync("PlantCard", (plants[i], 2, i >= 3))
+			}
+		</ul>
+	}
+</div>

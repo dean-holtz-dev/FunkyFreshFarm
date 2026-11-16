@@ -1,0 +1,21 @@
+@using Umbraco.Cms.Core.Models
+@model (MediaWithCrops Image, string Alt, string CssClass, string Sizes, int[] Widths, bool Lazy)
+@*
+    Responsive rendering of an editor-managed Media Library image (an Image Media Picker value).
+
+    Every srcset candidate is a signed ImageSharp URL from GetCropUrl: a square crop (centred, or on
+    the editor's focal point) at that width, converted to WebP. The uploaded original stays the master
+    copy in the Media Library; nothing here is hardcoded to a particular file.
+*@
+@{
+    string CropUrl(int width) =>
+        Model.Image.GetCropUrl(width: width, height: width, imageCropMode: ImageCropMode.Crop, quality: 80, furtherOptions: "&format=webp")
+        ?? string.Empty;
+
+    var widths = Model.Widths.OrderBy(w => w).ToArray();
+    var fallbackWidth = widths[widths.Length / 2];
+    var largest = widths[^1];
+    var srcset = string.Join(", ", widths.Select(w => $"{CropUrl(w)} {w}w"));
+}
+<img class="@Model.CssClass" src="@CropUrl(fallbackWidth)" srcset="@srcset" sizes="@Model.Sizes"
+     width="@largest" height="@largest" alt="@Model.Alt" loading="@(Model.Lazy ? "lazy" : "eager")" decoding="async" />

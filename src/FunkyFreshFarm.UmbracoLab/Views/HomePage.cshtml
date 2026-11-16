@@ -6,11 +6,70 @@
 
 	// heroHeadline is mandatory in the backoffice; fall back to the node name if it is ever empty.
 	var headline = string.IsNullOrWhiteSpace(Model.HeroHeadline) ? Model.Name : Model.HeroHeadline;
+
+	var plantsPage = Model.Children<ContentModels.PlantIndexPage>().FirstOrDefault();
+	var plantsTitle = plantsPage is null ? null : (string.IsNullOrWhiteSpace(plantsPage.PageTitle) ? plantsPage.Name : plantsPage.PageTitle);
+	var featured = plantsPage?.Children<ContentModels.PlantPage>().Take(3).ToList() ?? new List<ContentModels.PlantPage>();
+
+	// Farm story: optional properties added to Home Page in Milestone 5 (storyHeading, storyText).
+	// Read with Value<T>() rather than generated model properties, so this template compiles and
+	// renders both before and after the properties are added in the backoffice.
+	var storyHeading = Model.Value<string>("storyHeading");
+	var storyText = Model.Value<string>("storyText");
 }
-<section class="hero">
-	<h1>@headline</h1>
-	@if (!string.IsNullOrWhiteSpace(Model.IntroText))
-	{
-		<p class="lead">@Html.ReplaceLineBreaks(Model.IntroText)</p>
-	}
+<section class="hero" aria-labelledby="hero-title">
+	<picture class="hero__art">
+		<source media="(max-width: 47.99rem)"
+				srcset="/brand/hero-tall-480.jpg 480w, /brand/hero-tall-800.jpg 800w, /brand/hero-tall-1122.jpg 1122w"
+				sizes="100vw" width="1122" height="1402" />
+		<img src="/brand/hero-wide-1440.jpg"
+			 srcset="/brand/hero-wide-960.jpg 960w, /brand/hero-wide-1440.jpg 1440w, /brand/hero-wide-1774.jpg 1774w"
+			 sizes="(min-width: 80rem) 80rem, 100vw" width="1774" height="887" alt="" fetchpriority="high" decoding="async" />
+	</picture>
+	<div class="hero__content">
+		<h1 id="hero-title">@headline</h1>
+		@if (!string.IsNullOrWhiteSpace(Model.IntroText))
+		{
+			<p class="lead">@Html.ReplaceLineBreaks(Model.IntroText)</p>
+		}
+		@if (plantsPage is not null)
+		{
+			<a class="button button--sun" href="@plantsPage.Url()">Explore @plantsTitle</a>
+		}
+	</div>
 </section>
+
+@if (featured.Count > 0)
+{
+	<section class="featured container" aria-labelledby="featured-title">
+		<div class="section-heading">
+			<h2 id="featured-title">Featured plants</h2>
+			<img class="sticker" src="/brand/sticker-160.png" srcset="/brand/sticker-160.png 1x, /brand/sticker-320.png 2x"
+				 width="96" height="96" alt="" loading="lazy" decoding="async" />
+		</div>
+		<ul class="plant-grid">
+			@foreach (var plant in featured)
+			{
+				@await Html.PartialAsync("PlantCard", (plant, 3, true))
+			}
+		</ul>
+		<p class="section-footer"><a class="button" href="@plantsPage!.Url()">See all plants</a></p>
+	</section>
+}
+
+@if (!string.IsNullOrWhiteSpace(storyText))
+{
+	<section class="story container" aria-labelledby="story-title">
+		<div class="story__panel">
+			<figure class="story__art">
+				<img src="/brand/story-640.jpg" srcset="/brand/story-640.jpg 640w, /brand/story-1280.jpg 1280w"
+					 sizes="(min-width: 64rem) 34rem, 90vw" width="1280" height="853"
+					 alt="Illustrated garden with raised beds, seedlings, a watering can, and rubber boots" loading="lazy" decoding="async" />
+			</figure>
+			<div>
+				<h2 id="story-title">@(string.IsNullOrWhiteSpace(storyHeading) ? "About the farm" : storyHeading)</h2>
+				<p>@Html.ReplaceLineBreaks(storyText)</p>
+			</div>
+		</div>
+	</section>
+}

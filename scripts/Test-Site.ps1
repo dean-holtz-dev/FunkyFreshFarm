@@ -17,7 +17,8 @@
         (or pass -BaseUrl http://localhost:41388; the public site also answers over HTTP).
       - The Milestone 2 baseline content is published: Home, Plants ("Our Plants"),
         Heirloom Tomato, Basil, Zinnia, and Growing Guide, with the values in
-        docs/02-content-model.md §6.
+        docs/02-content-model.md §6. At least one plant has a Plant Image; plants without one
+        must render the "No image yet" placeholder.
 
 .PARAMETER BaseUrl
     Root URL of the site, without a trailing slash.
@@ -56,20 +57,20 @@ $pageChecks = @(
         Status   = 200
         Type     = 'text/html'
         Contains = @('<title>Funky Fresh Farm</title>', 'href="/plants/"', 'href="/growing-guide/"')
-        Matches  = @('<section class="hero">\s*<h1>[^<]+</h1>', 'aria-current="page">Home</a>')
+        Matches  = @('<section class="hero"[^>]*>.*?<h1[^>]*>[^<]+</h1>', 'aria-current="page">Home</a>')
     },
     @{
-        Name     = 'Plant directory'
-        Path     = '/plants/'
-        Status   = 200
-        Type     = 'text/html'
-        Contains = @('<title>Our Plants | Funky Fresh Farm</title>', '<h1>Our Plants</h1>')
-        Matches  = @(
+        # Image checks are structural, so they hold whichever media items the editors assign.
+        Name           = 'Plant directory'
+        Path           = '/plants/'
+        Status         = 200
+        Type           = 'text/html'
+        Contains       = @('<title>Our Plants | Funky Fresh Farm</title>', '<h1>Our Plants</h1>')
+        Matches        = @(
             'plant-card__name">Heirloom Tomato</h2>.*plant-card__name">Basil</h2>.*plant-card__name">Zinnia</h2>',
-            'heirloom-tomato\.png\?width=480&height=360&[^"]*hmac=',
-            'basil\.png\?width=480&height=360&[^"]*hmac=',
-            'image-placeholder"[^>]*>No image yet</div>\s*<h2 class="plant-card__name">Zinnia</h2>'
+            '<img class="plant-card__image" src="/media/[^"]*format=webp[^"]*hmac=[0-9a-f]+"'
         )
+        CardsConsistent = $true
     },
     @{
         Name     = 'Plant page: Heirloom Tomato'
@@ -87,12 +88,11 @@ $pageChecks = @(
         Contains = @('<h1>Basil</h1>', 'Ocimum basilicum', '<figure class="plant__image">')
     },
     @{
-        Name        = 'Plant page: Zinnia (missing-image fallback)'
-        Path        = '/plants/zinnia/'
-        Status      = 200
-        Type        = 'text/html'
-        Contains    = @('<h1>Zinnia</h1>', 'Zinnia elegans')
-        NotContains = @('<figure')
+        Name     = 'Plant page: Zinnia'
+        Path     = '/plants/zinnia/'
+        Status   = 200
+        Type     = 'text/html'
+        Contains = @('<h1>Zinnia</h1>', 'Zinnia elegans')
     },
     @{
         Name        = 'Growing guide (rich text)'
@@ -173,8 +173,19 @@ function Test-Page([System.Net.Http.HttpClient]$Client, [hashtable]$Spec) {
             if (-not [regex]::IsMatch($decoded, $pattern, 'Singleline')) { $failures.Add("no match for /$pattern/") }
         }
     }
+    $cardsSummary = ''
+    if ($Spec.ContainsKey('CardsConsistent')) {
+        # Every card renders either a signed media image or the "No image yet" placeholder (missing-image fallback).
+        $cards = [regex]::Matches($decoded, '<li class="plant-card">').Count
+        $images = [regex]::Matches($decoded, '<img class="plant-card__image" src="/media/').Count
+        $placeholders = [regex]::Matches($decoded, 'class="plant-card__image image-placeholder"').Count
+        if ($cards -eq 0 -or $cards -ne ($images + $placeholders)) {
+            $failures.Add("$cards card(s) but $images image(s) + $placeholders placeholder(s)")
+        }
+        $cardsSummary = " ($cards cards: $images image(s), $placeholders placeholder(s))"
+    }
 
-    $detail = if ($failures.Count -eq 0) { "GET $($Spec.Path) -> $($response.Status)" } else { "GET $($Spec.Path): " + ($failures -join '; ') }
+    $detail = if ($failures.Count -eq 0) { "GET $($Spec.Path) -> $($response.Status)$cardsSummary" } else { "GET $($Spec.Path): " + ($failures -join '; ') }
     Add-Result $Spec.Name ($failures.Count -eq 0) $detail
     return $response
 }

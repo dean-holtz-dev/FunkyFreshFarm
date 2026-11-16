@@ -1,15 +1,20 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @*
-    Shared layout for every page template. It is a plain Razor layout owned by Git, not a backoffice
-    master template, so it has no database record. Page templates opt in with Layout = "_Layout.cshtml".
+    Shared layout for every page template and the branded 404 view. It is a plain Razor layout owned
+    by Git, not a backoffice master template, so it has no database record.
 
-    The site name and footer note are code-owned chrome. Everything inside <main> comes from the
-    content tree via the page templates.
+    Site chrome (emblem, site name, footer note) and the static brand assets under /brand/ are
+    code-owned. Everything inside <main> comes from the content tree via the page templates.
+
+    Model is the current IPublishedContent, or null when rendering the 404 view (Umbraco renders
+    Global:NotFoundViewPath without a content model), so tree-dependent parts are skipped then.
 *@
 @{
     const string siteName = "Funky Fresh Farm";
     var pageTitle = ViewData["Title"] as string;
     var documentTitle = string.IsNullOrWhiteSpace(pageTitle) ? siteName : $"{pageTitle} | {siteName}";
+    var homeUrl = Model?.Root().Url() ?? "/";
+    var origin = $"{Context.Request.Scheme}://{Context.Request.Host}";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,22 +22,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@documentTitle</title>
+    <meta name="theme-color" content="#285c47" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/brand/favicon-32.png" />
+    <link rel="apple-touch-icon" href="~/brand/apple-touch-icon.png" />
+    <link rel="preload" href="~/fonts/fraunces-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="~/fonts/dm-sans-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <meta property="og:site_name" content="@siteName" />
+    <meta property="og:title" content="@documentTitle" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="@(origin)/brand/social-card-1200.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="628" />
+    <meta property="og:image:alt" content="Illustrated farm garden with tomatoes, sunflowers, and a red barn under a retro sun" />
+    <meta name="twitter:card" content="summary_large_image" />
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
         <div class="container site-header__inner">
-            <a class="brand" href="@Model.Root().Url()">@siteName</a>
-            @await Html.PartialAsync("Navigation", Model)
+            <a class="brand" href="@homeUrl">
+                <img class="brand__emblem" src="~/brand/emblem-96.png" srcset="/brand/emblem-96.png 1x, /brand/emblem-192.png 2x"
+                     width="48" height="48" alt="" />
+                <span class="brand__name">@siteName</span>
+            </a>
+            @if (Model is not null)
+            {
+                @await Html.PartialAsync("Navigation", Model)
+            }
         </div>
     </header>
-    <main id="main" class="container">
+    <main id="main">
         @RenderBody()
     </main>
     <footer class="site-footer">
-        <div class="container">
-            <p>@siteName is a fictional farm, built as an Umbraco learning lab.</p>
+        <div class="container site-footer__inner">
+            <div class="site-footer__brand">
+                <img src="~/brand/emblem-96.png" srcset="/brand/emblem-96.png 1x, /brand/emblem-192.png 2x"
+                     width="56" height="56" alt="" loading="lazy" />
+                <span>@siteName</span>
+            </div>
+            <p>@siteName is a fictional farm, built as an Umbraco learning lab. <a href="@homeUrl">Back to the homepage</a></p>
         </div>
     </footer>
 </body>

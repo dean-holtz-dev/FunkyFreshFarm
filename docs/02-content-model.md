@@ -109,8 +109,13 @@ filesystem is case-insensitive; Linux would not.
 |---|---|---|---|
 | Hero Headline | `heroHeadline` | Textstring | **Yes** |
 | Intro Text | `introText` | Textarea | No |
+| Story Heading *(added in Milestone 5)* | `storyHeading` | Textstring | No |
+| Story Text *(added in Milestone 5)* | `storyText` | Textarea | No |
 
 Structure: **Allow at root** on. Allowed child node types: Plant Index Page, Guide Page.
+
+The two story properties feed the homepage's farm-story section, which stays hidden until
+`storyText` has a value. Recreation steps: [05-assets.md §5, MT-29](05-assets.md#5-owner-procedures-manual).
 
 ### Plant Index Page: `plantIndexPage` (model `PlantIndexPage`, template `PlantIndexPage`)
 
@@ -447,7 +452,7 @@ Field values for every page are in §6.
    label was not verified; it is at the bottom of the dialog)*. **Save and publish**. Repeat for each plant:
    - Heirloom Tomato: image **Heirloom Tomato**.
    - Basil: image **Basil**; leave **Common Name empty** (tests the fallback to the node Name).
-   - Zinnia: **no image** (tests the missing-image fallback).
+   - Zinnia: **no image** (tests the missing-image fallback). *Milestone 5 later assigned botanical illustrations to all three plants; see 05-assets.md §5.*
 4. **Growing Guide.** Hover **Home** (not Plants) → **…** → **Create** → **Guide Page**. Name
    `Growing Guide`; fill **Page Title**; enter the body as described in §6 → **Save and publish**.
 
@@ -742,8 +747,11 @@ That is acceptable for a single-administrator lab. The hardening path is to regi
 
 ### Images
 
-`GetCropUrl(width: 480, height: 360, imageCropMode: ImageCropMode.Crop)` produces a URL such as
-`/media/yvujazkm/heirloom-tomato.png?width=480&height=360&v=…&hmac=…`. ImageSharp resizes on the
+*Updated in Milestone 5:* plant images now go through `Views/Partials/PlantIllustration.cshtml`,
+which calls `GetCropUrl(width: w, height: w, imageCropMode: ImageCropMode.Crop, quality: 80,
+furtherOptions: "&format=webp")` for several widths and emits a `srcset`, producing URLs such as
+`/media/<folder>/<file>.png?width=640&height=640&format=webp&quality=80&v=…&hmac=…` (details in
+[05-assets.md §4](05-assets.md#4-cms-managed-plant-illustrations)). ImageSharp resizes on the
 first request and caches the result in `umbraco/Data/TEMP/MediaCache/` (local state, gitignored).
 Because `Imaging:HMACSecretKey` is set,
 every processing URL carries an `hmac` signature, and ImageSharp rejects a URL whose signature does
@@ -756,12 +764,12 @@ not match with HTTP 400. That stops outsiders from making the server generate ar
 |---|---|
 | `commonName` / `pageTitle` empty | Falls back to the node's Name (Basil demonstrates this) |
 | `heroHeadline` empty (should be impossible: it is mandatory) | Falls back to the node's Name |
-| `plantImage` empty | Directory card shows a striped "No image yet" box; detail page omits the figure (Zinnia) |
+| `plantImage` empty | Directory card shows a striped "No image yet" box; detail page omits the figure (Zinnia until Milestone 5) |
 | `scientificName`, `introText`, `description` empty | The element is omitted |
 | `sunExposure` empty | Detail page shows "Not specified" |
 | Plants has no published children | "No plants have been published yet." |
 | `bodyText` empty | "This guide has no content yet." |
-| Unknown URL | Umbraco's built-in 404 page |
+| Unknown URL | Umbraco's built-in 404 page; since Milestone 5 the branded `Views/NotFound.cshtml` (`Umbraco:CMS:Global:NotFoundViewPath`) |
 | No published root node at all | Umbraco's built-in "No published content" page (templates are not used) |
 
 ### Code-owned text
@@ -877,7 +885,7 @@ and the Recycle Bin (trash and restore).
 | A page renders blank or with the wrong layout | The node's template (Info tab) and the template file's `Layout = "_Layout.cshtml";` line |
 | An edited value does not appear | The public site shows the **published** version. **Save** alone changes only the draft; use **Save and publish** |
 | A property is always empty | Alias mismatch, or the value is on a different Document Type. Read the generated model for the class's properties |
-| An image is missing | `plantImage` empty (by design for Zinnia), or the media item was deleted or trashed. A **400** on an image URL means the HMAC signature did not verify, for example if `appsettings.Local.json` (which holds the key) changed |
+| An image is missing | `plantImage` empty (Zinnia until Milestone 5), or the media item was deleted or trashed. A **400** on an image URL means the HMAC signature did not verify, for example if `appsettings.Local.json` (which holds the key) changed |
 | Navigation is missing a page | Only Home and Home's **published** children appear; check publish state and tree position |
 
 **Diagnostics that need no debugger:**
@@ -929,10 +937,10 @@ It also runs in Windows PowerShell 5.1:
 | Check | Proves |
 |---|---|
 | Home page | 200 HTML; site title; non-empty hero `<h1>`; navigation links to Plants and Growing Guide; Home marked as current page |
-| Plant directory | Title "Our Plants"; Heirloom Tomato, Basil, Zinnia cards **in tree order**; signed 480×360 image URLs for Tomato and Basil; "No image yet" placeholder for Zinnia |
+| Plant directory | Title "Our Plants"; Heirloom Tomato, Basil, Zinnia cards **in tree order**; at least one signed WebP card image; every card shows either an image or the "No image yet" placeholder (updated in Milestone 5) |
 | Heirloom Tomato | Name, scientific name, image figure, "Full Sun", back link, description with a rendered line break |
 | Basil | Heading falls back to the node Name (Common Name empty); image figure |
-| Zinnia | Heading; scientific name; **no** `<figure>` (missing-image fallback) |
+| Zinnia | Heading; scientific name (the "no image" assertion was removed in Milestone 5, when Zinnia gained an illustration) |
 | Growing guide | Title (HTML-encoded apostrophe `&#x27;` in the raw markup); rich text with `<h2>`, `<ul>`, `<strong>` rendered as HTML |
 | Stylesheet | `/css/site.css` served as `text/css` |
 | Unknown URL | Returns 404 |

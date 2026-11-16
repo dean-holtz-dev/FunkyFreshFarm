@@ -22,6 +22,7 @@ and commercial or paid Umbraco extensions.
 | 2. Content modelling and Razor rendering | Complete: four Document Types, a homepage, a plant directory with plant pages, a growing guide, shared layout and navigation, responsive CSS, publishing exercises, and a site smoke test |
 | 3. Content Delivery API and .NET extensibility | Complete: Delivery API v2 enabled (public, published content only, no preview key), a `ContentPublishedNotification` logging handler with unit tests, and an API verification script |
 | 4. Source exploration and engineering review | Complete: source-backed architecture briefing against Umbraco commit `89c87c2` (tag `release-17.8.1`), operational review, and a tested hot-backup tool with a backup/restore runbook |
+| 5. Visual identity ("Farmstand Funk") | Code complete: design tokens, self-hosted Fraunces + DM Sans, branded header/footer, responsive hero, featured plants, plant profiles, guide illustration, branded 404, brand-asset pipeline and test. **Pending owner steps:** upload/assign the botanical illustrations and add the farm-story properties (docs/05-assets.md §5) |
 
 **Database-backed state.** The Document Types, Data Types, template records, pages, and media
 exist only in the local SQLite database and `wwwroot/media/`, not in Git. A fresh clone has the
@@ -100,6 +101,16 @@ The API test needs the app running and the Delivery API index built (about a min
 request following startup). See [docs/03-api-and-extensions.md §7](docs/03-api-and-extensions.md#7-running-the-verification).
 C# changes require stopping the app before building, because the running process locks `bin/`.
 
+### Brand assets
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\Build-BrandAssets.ps1   # regenerate wwwroot/brand from assets/images
+pwsh ./scripts/Test-BrandAssets.ps1                                      # files, serving, page markup, CMS illustrations
+pwsh ./scripts/Test-BrandAssets.ps1 -SkipCms                             # skip the CMS-managed illustration checks
+```
+
+See [docs/05-assets.md](docs/05-assets.md) for which assets live in Git and which in the Media Library.
+
 ### Back up the database
 
 ```powershell
@@ -140,18 +151,23 @@ FunkyFreshFarm/
 ├─ global.json                   SDK selection (10.0.x, latest feature band)
 ├─ .gitignore / .gitattributes   Repository-wide ignores; line-ending normalisation
 ├─ assets/
-│  └─ placeholder-images/        Placeholder plant PNGs uploaded to the Media library (Milestone 5 replaces them)
+│  ├─ images/                    Owner's original artwork (untracked; inputs to Build-BrandAssets and Media uploads)
+│  └─ placeholder-images/        Milestone 2 placeholder plant PNGs (replaced in the Media Library in Milestone 5)
 ├─ docs/
 │  ├─ 01-installation.md         Installation, configuration, architecture, backup, troubleshooting
 │  ├─ 02-content-model.md        Content model, backoffice recreation, Razor, publishing, testing
 │  ├─ 03-api-and-extensions.md   Delivery API, security, notification handler, end-to-end trace
 │  ├─ 04-architecture.md         Source-backed architecture briefing, operational review, backup runbook
+│  ├─ 05-design-system.md        "Farmstand Funk" tokens, typography, components, responsive and accessibility rules
+│  ├─ 05-assets.md               Asset inventory, provenance, Git versus Media Library, owner upload procedures
 │  ├─ manual-test-checklist.md   Human verification steps and outcomes
 │  └─ verification-log.md        Commands run, results, evidence, known issues
 ├─ scripts/
 │  ├─ Test-Prerequisites.ps1     Read-only environment and Git-hygiene checks
 │  ├─ Test-Site.ps1              Read-only smoke test of the public site
 │  ├─ Test-DeliveryApi.ps1       Read-only semantic test of the Content Delivery API
+│  ├─ Test-BrandAssets.ps1       Read-only test of brand files, serving, markup, and CMS illustrations
+│  ├─ Build-BrandAssets.ps1      Generates wwwroot/brand derivatives from the original artwork
 │  └─ backup-database.cs         Hot SQLite backup + integrity check (.NET file-based app)
 ├─ tests/
 │  └─ FunkyFreshFarm.UmbracoLab.Tests/  xUnit tests for the notification handler and its registration
@@ -166,7 +182,8 @@ FunkyFreshFarm/
       │  ├─ HomePage.cshtml, PlantIndexPage.cshtml, PlantPage.cshtml, GuidePage.cshtml
       │  │                        Page templates (records in the database, markup in Git)
       │  └─ Partials/             Navigation.cshtml plus the template's block partials
-      ├─ wwwroot/                Static files: css/site.css (media uploads land in wwwroot/media, untracked)
+      ├─ wwwroot/                Static files: css/site.css, brand/ (artwork derivatives), fonts/ (WOFF2 + OFL);
+      │                          media uploads land in wwwroot/media (untracked)
       └─ umbraco/                Runtime state: Data (SQLite, TEMP), Logs — untracked
 ```
 
@@ -176,6 +193,7 @@ FunkyFreshFarm/
 - [Content model and rendering](docs/02-content-model.md): why Umbraco models content this way, Document Types, backoffice recreation, Razor, publishing lifecycle, testing
 - [Delivery API and extensions](docs/03-api-and-extensions.md): API configuration, endpoints, JSON shapes, security, notification handler, end-to-end trace
 - [Architecture and engineering review](docs/04-architecture.md): startup and lifecycle traced through Umbraco's source, project boundaries, operational risks, testing, upgrades, backup/restore runbook
+- [Design system](docs/05-design-system.md) and [brand assets](docs/05-assets.md): palette and contrast, typography and licensing, components, responsive images, asset provenance and replacement
 - [Manual test checklist](docs/manual-test-checklist.md)
 - [Verification log](docs/verification-log.md)
 - [Umbraco 17 documentation](https://docs.umbraco.com/umbraco-cms/17.latest/)
