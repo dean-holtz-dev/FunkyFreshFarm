@@ -1,4 +1,9 @@
-# Verification Log — Milestone 1
+# Verification Log
+
+- [Milestone 1 — Installation and project foundation](#milestone-1--installation-and-project-foundation)
+- [Milestone 2 — Content modelling and Razor rendering](#milestone-2--content-modelling-and-razor-rendering)
+
+# Milestone 1 — Installation and project foundation
 
 | | |
 |---|---|
@@ -95,3 +100,94 @@ changed the plan, and **INFO** marks a recorded fact.
 | Visual Studio 2022 17.6 cannot build .NET 10 / open `.slnx` | No VS debugging | Use VS Code + C# Dev Kit, VS 2026, or Rider |
 | Backoffice labels the database provider "System.Data.SQLite" | Cosmetic | Actual provider is `Microsoft.Data.Sqlite` 10.0.12 |
 | Restore and reset procedures not yet exercised | Untested docs | Exercise in a later milestone |
+
+---
+
+# Milestone 2 — Content modelling and Razor rendering
+
+| | |
+|---|---|
+| Date | 2026-11-15 (times are local, UTC−06:00) |
+| Scope | Content model, backoffice content, Razor rendering, publishing behaviour, smoke test |
+| Automated checks | Claude Code (read-only: files, HTTP, logs, generated models, database **snapshots** taken with SQLite's online backup API from a read-only connection; the live database was never written) |
+| Manual checks | Repository owner (MT-10 to MT-20 in [manual-test-checklist.md](manual-test-checklist.md)) |
+| Git revision | Baseline `0d36ebc`. This log is part of the Milestone 2 commit; find it with `git log --oneline -- docs/verification-log.md` |
+| Environment | As Milestone 1; Umbraco 17.8.1, .NET 10.0.15 |
+
+## Baseline (before any change)
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M2-1 | `git status`, `git log` | PASS | Clean at `0d36ebc` |
+| M2-2 | `Test-Prerequisites.ps1 -SkipNetwork` | PASS | 14 pass, 0 warnings, 0 failures |
+| M2-3 | `dotnet build FunkyFreshFarm.slnx -c Debug` | PASS | 0 warnings, 0 errors |
+| M2-4 | Start app; `server/status`, `/`, `/umbraco` | PASS | `Run`; 200; title "Umbraco: No Published Content" |
+| M2-5 | Database files after the owner's MT-08 Ctrl+C shutdown | INFO | Single 1 MB file: the clean shutdown checkpointed the WAL |
+
+## Phase 1–2 — Model design and backoffice configuration
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M2-6 | List built-in Data Types from a backup copy | INFO | Textstring, Textarea, Richtext editor (Tiptap), Image Media Picker (images only, single), Radiobox (no options) |
+| M2-7 | Verify backoffice labels in `Umbraco.Web.UI.Client/src/assets/lang/en.ts` (17.8.1) | PASS | "Document Type with Template", "Add group", "Add property", "Available configurations", "Allow at root", "Allowed child node types", "Save and publish", "Add option", "Publication Status", "Published (pending changes)", "Unpublish" |
+| M2-8 | Generate placeholder PNGs (scratch .NET file-based app, no dependencies) | PASS | 3 × 800×600 RGB, 9–14 KB; decoded by GDI+; visually checked |
+| M2-9 | Checkpoint C: template files | PASS | `Views/HomePage.cshtml`, `PlantIndexPage.cshtml`, `PlantPage.cshtml`, `GuidePage.cshtml` with matching `UmbracoViewPage<ContentModels.X>` |
+| M2-10 | Checkpoint C: snapshot of Document Types | FAIL → PASS | All aliases, Data Types, structure rules, and templates correct; `heroHeadline` `mandatory=0`. After the owner's fix: `mandatory=1` |
+| M2-11 | Checkpoint C: log since app start | PASS | 0 errors; 1 known warning (Application URL) |
+| M2-12 | Confirm the snapshot does not write the live DB | PASS | WAL timestamp advances every ~5 s with no reads (app's InstructionProcessJob) |
+| M2-13 | Checkpoint E: snapshot of content and media | PASS | Tree: Home (L1); Plants and Growing Guide (L2, siblings); 3 plants (L3). All published, `edited=0`. `plantImage` keys match media items; Basil `commonName` empty; Zinnia no image |
+| M2-14 | Uploaded media vs placeholder sources (SHA-256) | PASS | Byte-identical |
+| M2-15 | Rich-text body and toolbar configuration | FINDING | Body has h2/p/ul/strong; typo "planing"; default toolbar has **no heading button** |
+| M2-16 | Public routes with empty templates | PASS | 6 routes 200 (empty body); unknown URL 404; media file 200 `image/png` |
+| M2-17 | `models.generated.cs` | PASS | `HomePage`, `PlantIndexPage`, `PlantPage` (`PlantImage: MediaWithCrops`), `GuidePage` (`BodyText: IHtmlEncodedString`) |
+| M2-18 | Log since Checkpoint C | PASS | 0 errors; 29 × "Notifications can not be sent, no site URL is set" (known) |
+
+## Phase 3 — Razor rendering
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M2-19 | Verify APIs in 17.8.1 source | PASS | `Root()`, `Children<T>()`, `Parent()`, `AncestorsOrSelf()`, `Url()`; `GetCropUrl(MediaWithCrops, width, height, imageCropMode)`; `Html.ReplaceLineBreaks` encodes first; `UmbracoViewPage` writes `IHtmlEncodedString` raw; default `NoopHtmlSanitizer`; view locations `/Views/`, `/Views/Shared/`, `/Views/Partials/` |
+| M2-20 | Request all routes after adding views and CSS (no restart) | PASS | 6 pages 200 with correct titles; no compilation errors; CSS 200; unknown 404 |
+| M2-21 | Inspect markup | PASS | Hero/intro with `<br />`; nav `aria-current`; section highlighting; signed image URLs; Zinnia placeholder and no `<figure>`; Basil Name fallback; rich text unencoded; apostrophe encoded |
+| M2-22 | Fetch processed images | PASS | 480×360 and 800×600 `image/png`; tampered `hmac` → **400** |
+| M2-23 | ImageSharp cache location | PASS | `umbraco/Data/TEMP/MediaCache/` |
+| M2-24 | Owner's visual check (MT-14) | PASS | "Phase 3 visual check passed" |
+
+## Phase 4 — Publishing behaviour
+
+| # | Stage | Result | Evidence (snapshot + HTTP) |
+|---|---|---|---|
+| M2-25 | Baseline | INFO | Home v5 published, v6 current; cache rows draft `rv=1`, published `rv=0` |
+| M2-26 | A: Save only | PASS | `edited=1`; still 2 versions; v6 updated in place; published cache row unchanged; public `<h1>` old ×3 |
+| M2-27 | B: Save and publish | PASS | `edited=0`; v6 published; new current v20; published cache row `rv` 0→1; public `<h1>` new; audit log 4 entries = History |
+| M2-28 | C: create Mint | PASS | Level 3 under Plants, sort 3; v21/v22; directory 4 cards in order; `/plants/mint/` 200 |
+| M2-29 | D: unpublish Mint | PASS | `published=0`, `edited=1`, not trashed; no new version; published cache row deleted; directory 3 cards; `/plants/mint/` 404 |
+| M2-30 | E: Ctrl+C restart | PASS | New PID; clean shutdown and startup in log; state identical to D; owner saw a single DB file after shutdown |
+| M2-31 | Source confirmation | PASS | `DocumentRepository.cs:1355-1425` (versions), `DocumentCacheService.RefreshContentAsync` (cache), `DocumentRepository.cs:1298-1306, 1516-1522` (unpublish) |
+
+## Phase 5–7 — Smoke test, documentation, build, Git
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M2-32 | `pwsh scripts/Test-Site.ps1` | PASS | 10 passed, 0 failed, exit 0 |
+| M2-33 | Same under Windows PowerShell 5.1 | PASS | 10 passed, exit 0 |
+| M2-34 | `Test-Site.ps1 -BaseUrl http://localhost:41388` | PASS | 10 passed, exit 0 |
+| M2-35 | Negative: unreachable port | PASS | "Site reachable" FAIL, exit 1 |
+| M2-36 | Negative: wrong marker (scratch copy) | PASS | "missing '<h1>Our Plantz</h1>'", exit 1 |
+| M2-37 | Verify routing classes for docs | FINDING | URL finder is `ContentFinderByUrlNew` (`IDocumentUrlService`); `ContentFinderByUrl` is obsolete and unregistered; docs corrected |
+| M2-38 | `dotnet build FunkyFreshFarm.slnx -c Debug` (app running) | PASS | 0 warnings, 0 errors (incremental; app unaffected) |
+| M2-39 | Final `Test-Site.ps1` | PASS | 10/10 |
+| M2-40 | Owner runs `Test-Site.ps1` (MT-20) | NOT RUN | Pending owner |
+
+## Known issues (Milestone 2)
+
+| Issue | Impact | Status / workaround |
+|---|---|---|
+| Content model, content, and media are database/filesystem state | A fresh clone renders nothing until recreated | Documented recreation (02-content-model.md §5–§6) and backup/restore |
+| `InMemoryAuto` + `RazorCompileOnBuild=false` | View/alias errors appear only at request time | `Test-Site.ps1`; consider `SourceCodeAuto` later |
+| Rich text is unsanitised (`NoopHtmlSanitizer`) | Editors can inject arbitrary HTML | Acceptable for a single-admin lab; register a real `IHtmlSanitizer` to harden |
+| "Notifications can not be sent, no site URL is set" (3 per save/publish) | Log noise; no email notifications | Set `Umbraco:CMS:WebRouting:UmbracoApplicationUrl` when email is needed |
+| Default Richtext editor toolbar has no heading button | Headings need `##` + space or Source code | Documented in 02-content-model.md §6 |
+| Growing Guide body typo "planing" | Cosmetic | Owner's content; not changed |
+| Mint exists unpublished | None; tests do not count cards | Republish or delete as desired |
+| Owner's `assets/images/` (12 PNGs, 32.6 MB) | Untracked | Not committed pending the owner's decision |

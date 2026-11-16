@@ -1,0 +1,27 @@
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.GuidePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = "_Layout.cshtml";
+
+	var title = string.IsNullOrWhiteSpace(Model.PageTitle) ? Model.Name : Model.PageTitle;
+	ViewData["Title"] = title;
+
+	// BodyText is IHtmlEncodedString: editor-authored HTML that UmbracoViewPage writes unencoded.
+	// It is trusted backoffice input; Umbraco's default IHtmlSanitizer is a no-op.
+	var hasBody = !string.IsNullOrWhiteSpace(Model.BodyText?.ToHtmlString());
+}
+<article class="guide">
+	<header class="page-header">
+		<h1>@title</h1>
+	</header>
+
+	@if (hasBody)
+	{
+		<div class="rich-text">@Model.BodyText</div>
+	}
+	else
+	{
+		<p class="empty-state">This guide has no content yet.</p>
+	}
+</article>

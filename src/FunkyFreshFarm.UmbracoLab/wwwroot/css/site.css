@@ -1,0 +1,285 @@
+/* Funky Fresh Farm — minimal responsive styles. No framework, no build step. */
+
+:root {
+    --color-bg: #fffaf0;
+    --color-surface: #ffffff;
+    --color-text: #2b2620;
+    --color-muted: #6b6257;
+    --color-brand: #2e7d32;
+    --color-brand-dark: #1b5e20;
+    --color-accent: #e65100;
+    --color-border: #e8dfd0;
+    --radius: 12px;
+    --max-width: 64rem;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font);
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    color: var(--color-brand-dark);
+}
+
+a:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+}
+
+.skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-surface);
+    z-index: 10;
+}
+
+/* Header and navigation */
+
+.site-header {
+    background: var(--color-brand);
+    color: #fff;
+}
+
+.site-header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.brand {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.site-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover,
+.site-nav a.is-active {
+    border-bottom-color: #fff;
+}
+
+/* Page content */
+
+main {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+h1,
+h2 {
+    line-height: 1.2;
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+    margin-bottom: 0.25rem;
+}
+
+.lead {
+    font-size: 1.15rem;
+    color: var(--color-muted);
+    max-width: 42rem;
+}
+
+.hero {
+    padding: 3rem 0;
+}
+
+.hero h1 {
+    font-size: clamp(2rem, 6vw, 3.25rem);
+    color: var(--color-brand-dark);
+    margin-top: 0;
+}
+
+.scientific-name {
+    font-style: italic;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+.empty-state {
+    padding: 1rem;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-muted);
+}
+
+/* Plant directory */
+
+.plant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.plant-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.plant-card__link {
+    display: block;
+    height: 100%;
+    padding-bottom: 1rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.plant-card__link:hover .plant-card__name {
+    text-decoration: underline;
+}
+
+.plant-card__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(45deg, #f3ece0, #f3ece0 10px, #efe6d6 10px, #efe6d6 20px);
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.plant-card__name {
+    font-size: 1.2rem;
+    margin: 0.75rem 1rem 0.25rem;
+}
+
+.plant-card .scientific-name,
+.plant-card__sun {
+    margin: 0 1rem;
+}
+
+.plant-card__sun {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+}
+
+/* Plant detail */
+
+.back-link {
+    margin-top: 0;
+}
+
+.plant__image {
+    margin: 0 0 1.5rem;
+    max-width: 50rem;
+}
+
+.plant__image img {
+    border-radius: var(--radius);
+}
+
+.plant__description {
+    max-width: 42rem;
+}
+
+.facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    padding: 1rem;
+    max-width: 42rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.facts dt {
+    font-weight: 600;
+}
+
+.facts dd {
+    margin: 0;
+}
+
+/* Rich text (Growing Guide) */
+
+.rich-text {
+    max-width: 42rem;
+}
+
+.rich-text h2 {
+    margin-top: 2rem;
+    color: var(--color-brand-dark);
+}
+
+/* Footer */
+
+.site-footer {
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 40rem) {
+    .hero {
+        padding: 1.5rem 0;
+    }
+
+    .facts {
+        grid-template-columns: 1fr;
+    }
+}

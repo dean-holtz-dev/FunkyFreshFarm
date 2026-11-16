@@ -14,9 +14,18 @@ Windows machine.
 **Out of scope:** Docker, Azure or other cloud hosting, Shopify, React front ends, commerce plugins,
 and commercial or paid Umbraco extensions.
 
-**Status:** Milestone 1 (installation and project foundation) is complete. The site has no
-content, document types, or templates yet; browsing to `/` shows Umbraco's
-"No Published Content" page.
+**Status:**
+
+| Milestone | State |
+|---|---|
+| 1. Installation and project foundation | Complete |
+| 2. Content modelling and Razor rendering | Complete: four Document Types, a homepage, a plant directory with plant pages, a growing guide, shared layout and navigation, responsive CSS, publishing exercises, and a site smoke test |
+
+**Database-backed state.** The Document Types, Data Types, template records, pages, and media
+exist only in the local SQLite database and `wwwroot/media/`, not in Git. A fresh clone has the
+Razor views and CSS but no content model: recreate it by following
+[docs/02-content-model.md §5–§6](docs/02-content-model.md#5-backoffice-recreation-instructions),
+or restore a database backup ([docs/01-installation.md §11](docs/01-installation.md#11-backup-restore-and-restart)).
 
 ## Technology versions
 
@@ -65,17 +74,31 @@ dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.
 
 Stop the application with **Ctrl+C**.
 
+### Smoke-test the public site
+
+With the app running and the Milestone 2 content published:
+
+```powershell
+pwsh ./scripts/Test-Site.ps1
+```
+
+It runs 10 read-only checks (routes, status codes, content markers, image processing) and exits
+`0` on success, `1` on any failure. Prerequisites and the required content are listed in
+[docs/02-content-model.md §13](docs/02-content-model.md#13-testing-the-public-site).
+
 ### First run on a new clone
 
 The SQLite database and its connection string are local state and are not in Git. On a fresh
 clone, Umbraco starts in install mode: open the backoffice URL below and follow
 [docs/01-installation.md § First-run installation](docs/01-installation.md#6-first-run-interactive-installation).
+Then recreate the content model and pages with
+[docs/02-content-model.md §5–§6](docs/02-content-model.md#5-backoffice-recreation-instructions).
 
 ## Local access
 
 | What | URL | Notes |
 |---|---|---|
-| Website | https://localhost:44370/ | Also served on http://localhost:41388/ |
+| Website | https://localhost:44370/ | Also served on http://localhost:41388/. Pages: `/`, `/plants/`, `/plants/heirloom-tomato/`, `/plants/basil/`, `/plants/zinnia/`, `/growing-guide/` |
 | Backoffice | https://localhost:44370/umbraco | **HTTPS only.** Login over HTTP fails with OpenIddict error ID2083 |
 | Server status API | https://localhost:44370/umbraco/management/api/v1/server/status | Returns `{"serverStatus":"Run"}` once installed |
 
@@ -90,25 +113,34 @@ FunkyFreshFarm/
 ├─ FunkyFreshFarm.slnx           Solution (XML .slnx format, .NET 10 default)
 ├─ global.json                   SDK selection (10.0.x, latest feature band)
 ├─ .gitignore / .gitattributes   Repository-wide ignores; line-ending normalisation
+├─ assets/
+│  └─ placeholder-images/        Placeholder plant PNGs uploaded to the Media library (Milestone 5 replaces them)
 ├─ docs/
 │  ├─ 01-installation.md         Installation, configuration, architecture, backup, troubleshooting
+│  ├─ 02-content-model.md        Content model, backoffice recreation, Razor, publishing, testing
 │  ├─ manual-test-checklist.md   Human verification steps and outcomes
 │  └─ verification-log.md        Commands run, results, evidence, known issues
 ├─ scripts/
-│  └─ Test-Prerequisites.ps1     Read-only environment and Git-hygiene checks
+│  ├─ Test-Prerequisites.ps1     Read-only environment and Git-hygiene checks
+│  └─ Test-Site.ps1              Read-only smoke test of the public site
 └─ src/
    └─ FunkyFreshFarm.UmbracoLab/ The Umbraco web application (generated from Umbraco.Templates 17.8.1)
       ├─ Program.cs              Umbraco boot and middleware pipeline
       ├─ Directory.Packages.props Central package versions (Umbraco pinned to 17.8.1)
       ├─ appsettings*.json       Configuration (see docs for what is tracked vs local)
-      ├─ Views/                  Razor views and block partials
-      ├─ wwwroot/                Static files (media uploads land in wwwroot/media, untracked)
+      ├─ Views/
+      │  ├─ _Layout.cshtml        Shared layout (code-owned; not a backoffice template)
+      │  ├─ HomePage.cshtml, PlantIndexPage.cshtml, PlantPage.cshtml, GuidePage.cshtml
+      │  │                        Page templates (records in the database, markup in Git)
+      │  └─ Partials/             Navigation.cshtml plus the template's block partials
+      ├─ wwwroot/                Static files: css/site.css (media uploads land in wwwroot/media, untracked)
       └─ umbraco/                Runtime state: Data (SQLite, TEMP), Logs — untracked
 ```
 
 ## Further documentation
 
 - [Installation guide](docs/01-installation.md): setup, configuration, SQLite, startup architecture, backup, troubleshooting
+- [Content model and rendering](docs/02-content-model.md): why Umbraco models content this way, Document Types, backoffice recreation, Razor, publishing lifecycle, testing
 - [Manual test checklist](docs/manual-test-checklist.md)
 - [Verification log](docs/verification-log.md)
 - [Umbraco 17 documentation](https://docs.umbraco.com/umbraco-cms/17.latest/)

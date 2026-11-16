@@ -1,0 +1,24 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@*
+    Main navigation, built from the content tree: the root node followed by its published children.
+    The model is the page being rendered; it marks the current page and the section that contains it.
+*@
+@{
+    var root = Model.Root();
+    var items = new[] { root }.Concat(root.Children());
+    var ancestorIds = Model.AncestorsOrSelf().Select(page => page.Id).ToHashSet();
+}
+<nav class="site-nav" aria-label="Main">
+    <ul>
+        @foreach (var item in items)
+        {
+            var isCurrentPage = item.Id == Model.Id;
+            var isCurrentSection = item.Id != root.Id && ancestorIds.Contains(item.Id);
+            <li>
+                <a href="@item.Url()"
+                   class="@(isCurrentPage || isCurrentSection ? "is-active" : null)"
+                   aria-current="@(isCurrentPage ? "page" : null)">@item.Name</a>
+            </li>
+        }
+    </ul>
+</nav>

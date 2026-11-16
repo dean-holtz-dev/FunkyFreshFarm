@@ -1,0 +1,16 @@
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = "_Layout.cshtml";
+
+	// heroHeadline is mandatory in the backoffice; fall back to the node name if it is ever empty.
+	var headline = string.IsNullOrWhiteSpace(Model.HeroHeadline) ? Model.Name : Model.HeroHeadline;
+}
+<section class="hero">
+	<h1>@headline</h1>
+	@if (!string.IsNullOrWhiteSpace(Model.IntroText))
+	{
+		<p class="lead">@Html.ReplaceLineBreaks(Model.IntroText)</p>
+	}
+</section>

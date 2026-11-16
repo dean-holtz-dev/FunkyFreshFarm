@@ -1,8 +1,13 @@
-# Manual Test Checklist — Milestone 1
+# Manual Test Checklist
 
 Checks that need a person: browser interaction, logins, and visual confirmation. Automated
 checks are recorded separately in [verification-log.md](verification-log.md). An item is ticked
 only after the owner confirms it.
+
+- [Milestone 1 — Installation](#milestone-1--installation) (MT-01 to MT-09)
+- [Milestone 2 — Content model and rendering](#milestone-2--content-model-and-rendering) (MT-10 to MT-20)
+
+# Milestone 1 — Installation
 
 Legend: `[x] Pass` · `[ ] Pass` (not yet confirmed) · record failures in **Notes**.
 
@@ -188,3 +193,91 @@ The first attempt at step 1 failed only because a trailing period was copied wit
 - [ ] Fail
 
 **Notes:** confirmed by the owner on 2026-11-15. Automated check: page title is `Umbraco: No Published Content`.
+
+---
+
+# Milestone 2 — Content model and rendering
+
+Detailed procedures for MT-10 to MT-14 are in
+[02-content-model.md §5](02-content-model.md#5-backoffice-recreation-instructions); MT-15 to MT-20
+were given step by step during the session and are summarised below. For every item, Claude Code
+also ran an independent read-only verification (database snapshot via SQLite's online backup API,
+public HTTP requests, generated models, logs). Results are in the verification log.
+
+## Summary
+
+| ID | Test | Outcome | Date |
+|---|---|---|---|
+| MT-10 | Sun Exposure Data Type created (Radio Button List: Full Sun, Partial Sun, Shade) | Pass | 2026-11-15 |
+| MT-11 | Four Document Types with templates, properties, and structure rules (Checkpoint C) | Pass after one fix | 2026-11-15 |
+| MT-12 | Placeholder images uploaded to Media → Plants | Pass | 2026-11-15 |
+| MT-13 | Content tree created and published; images on Tomato and Basil only (Checkpoint E) | Pass | 2026-11-15 |
+| MT-14 | Visual check of all pages, phone width, keyboard focus (Phase 3) | Pass | 2026-11-15 |
+| MT-15 | Stage A: Save without publishing leaves the public site unchanged | Pass | 2026-11-15 |
+| MT-16 | Stage B: Save and publish makes the change public immediately | Pass | 2026-11-15 |
+| MT-17 | Stage C: a new plant (Mint) appears in the directory | Pass | 2026-11-15 |
+| MT-18 | Stage D: unpublishing Mint removes it publicly but keeps it in the tree | Pass | 2026-11-15 |
+| MT-19 | Stage E: state persists across a Ctrl+C restart | Pass | 2026-11-15 |
+| MT-20 | Run `scripts/Test-Site.ps1` in your own terminal | **Not run** | |
+
+## MT-10 to MT-13 — Backoffice configuration and content
+
+**Expected:** as in 02-content-model.md §3–§6.
+
+- [x] MT-10 Pass
+- [x] MT-11 Pass. **Notes:** at Checkpoint C, `heroHeadline` was not mandatory. The owner fixed it
+  and a second snapshot confirmed `mandatory = 1`. Property display names were entered in Title Case
+  ("Hero Headline"); the docs were updated to match. Template aliases are PascalCase (`HomePage`).
+- [x] MT-12 Pass. **Notes:** media items are named `Heirloom Tomato`, `Basil`, `Zinnia` (no
+  "placeholder" suffix); uploaded files are byte-identical to `assets/placeholder-images/`.
+- [x] MT-13 Pass. **Notes:** Growing Guide body contains the typo "planing" (left as entered).
+  Headings were created without a toolbar heading button (there is none in 17.8.1).
+
+## MT-14 — Visual check of the rendered site
+
+**Steps:** open every page after Ctrl+F5; check the header, navigation, and current-section
+underline; three plant cards with two images and a "No image yet" placeholder; plant detail pages;
+the guide's headings, list, and bold text; phone width via F12 → Ctrl+Shift+M; Tab shows
+"Skip to content" and focus outlines.
+
+- [x] Pass. **Notes:** confirmed by the owner ("Phase 3 visual check passed").
+
+## MT-15 to MT-19 — Publishing behaviour
+
+| ID | Steps | Expected | Owner observed |
+|---|---|---|---|
+| MT-15 | Change Home's Hero Headline to `Funky flavors, fresh from our fields`; **Save** only; reload the public page | Status **Published (pending changes)**; public headline unchanged | Published (pending changes) |
+| MT-16 | **Save and publish** Home; reload | Status **Published**; new headline public immediately | Published; History showed 4 entries |
+| MT-17 | Create Mint (Plant Page, Partial Sun, no image) under Plants; **Save and publish** | Directory shows 4 cards; `/plants/mint/` renders | Done |
+| MT-18 | Hover Mint → **…** → **Unpublish** | Status **Unpublished**; Mint grey in tree; directory back to 3; `/plants/mint/` 404 | Unpublished; grey in tree |
+| MT-19 | Ctrl+C, list `umbraco\Data` files, restart | Clean shutdown; new headline kept; Mint still unpublished | One database file after shutdown |
+
+- [x] MT-15 Pass
+- [x] MT-16 Pass
+- [x] MT-17 Pass
+- [x] MT-18 Pass
+- [x] MT-19 Pass
+
+## MT-20 — Run the site smoke test yourself
+
+**Purpose:** confirm the test runs from your own shell. Claude Code has run it, but not in your terminal.
+
+1. Make sure the app is running in another window.
+2. In a PowerShell window at `C:\dev\FunkyFreshFarm`, run:
+
+   ```powershell
+   pwsh ./scripts/Test-Site.ps1
+   ```
+
+   Or, in Windows PowerShell 5.1:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\Test-Site.ps1
+   ```
+
+**Expected:** ten `[PASS]` lines and `Passed: 10  Failed: 0  Exit code: 0`.
+
+- [ ] Pass
+- [ ] Fail
+
+**Notes:**

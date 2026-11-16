@@ -1,0 +1,39 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@*
+    Shared layout for every page template. It is a plain Razor layout owned by Git, not a backoffice
+    master template, so it has no database record. Page templates opt in with Layout = "_Layout.cshtml".
+
+    The site name and footer note are code-owned chrome. Everything inside <main> comes from the
+    content tree via the page templates.
+*@
+@{
+    const string siteName = "Funky Fresh Farm";
+    var pageTitle = ViewData["Title"] as string;
+    var documentTitle = string.IsNullOrWhiteSpace(pageTitle) ? siteName : $"{pageTitle} | {siteName}";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@documentTitle</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" href="@Model.Root().Url()">@siteName</a>
+            @await Html.PartialAsync("Navigation", Model)
+        </div>
+    </header>
+    <main id="main" class="container">
+        @RenderBody()
+    </main>
+    <footer class="site-footer">
+        <div class="container">
+            <p>@siteName is a fictional farm, built as an Umbraco learning lab.</p>
+        </div>
+    </footer>
+</body>
+</html>

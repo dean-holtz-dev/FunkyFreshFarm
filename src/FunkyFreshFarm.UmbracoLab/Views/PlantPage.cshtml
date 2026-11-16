@@ -1,0 +1,42 @@
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.PlantPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = "_Layout.cshtml";
+
+	var name = string.IsNullOrWhiteSpace(Model.CommonName) ? Model.Name : Model.CommonName;
+	ViewData["Title"] = name;
+
+	var directory = Model.Parent();
+}
+<article class="plant">
+	@if (directory is not null)
+	{
+		<p class="back-link"><a href="@directory.Url()">&larr; Back to @directory.Name</a></p>
+	}
+
+	<header class="page-header">
+		<h1>@name</h1>
+		@if (!string.IsNullOrWhiteSpace(Model.ScientificName))
+		{
+			<p class="scientific-name">@Model.ScientificName</p>
+		}
+	</header>
+
+	@if (Model.PlantImage is not null)
+	{
+		<figure class="plant__image">
+			<img src="@Model.PlantImage.GetCropUrl(width: 800)" alt="@name" width="800" height="600" />
+		</figure>
+	}
+
+	@if (!string.IsNullOrWhiteSpace(Model.Description))
+	{
+		<p class="plant__description">@Html.ReplaceLineBreaks(Model.Description)</p>
+	}
+
+	<dl class="facts">
+		<dt>Sun exposure</dt>
+		<dd>@(string.IsNullOrWhiteSpace(Model.SunExposure) ? "Not specified" : Model.SunExposure)</dd>
+	</dl>
+</article>

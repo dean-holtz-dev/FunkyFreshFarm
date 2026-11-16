@@ -33,6 +33,43 @@ Standing instructions for Claude Code sessions in this repository.
 - Record results in `docs/verification-log.md` and manual steps in `docs/manual-test-checklist.md`.
 - Ask before system-level changes: SDK or tool installs, certificate trust, global Git/NuGet config.
 
+## Human-in-the-loop instruction standard
+
+The owner is an experienced .NET engineer who is new to Umbraco and learns by doing the backoffice
+work personally. Whenever a milestone needs manual action from the owner:
+
+**Give a complete, self-contained procedure in the response itself.** Keep the canonical docs
+updated too, but never just point to a document section. For each manual task include:
+
+1. **Purpose** — what we are doing and why it matters.
+2. **Starting location** — exact application, page, or directory.
+3. **Navigation** — specific buttons, menus, tabs, and controls.
+4. **Input values** — exact names, aliases, configuration, and values.
+5. **Saving** — exactly how to save or publish.
+6. **Expected result** — what the owner should see afterwards.
+7. **Verification** — how the owner can independently confirm it worked.
+8. **Troubleshooting** — common problems and what evidence to collect.
+9. **Stop point** — whether to continue or wait for Claude's verification.
+
+Use tables for field definitions and numbered steps for UI procedures. Do not assume knowledge of
+Umbraco navigation or terminology; explain the Umbraco concept the task illustrates where practical.
+Use the UI labels of the version actually running (verify against the `release-17.8.1` source,
+e.g. `src/Umbraco.Web.UI.Client/src/assets/lang/en.ts`) and state any remaining uncertainty
+instead of guessing. Put every copyable value in its own code block or table cell, never followed
+by sentence punctuation.
+
+### Checkpoint discipline
+
+At every manual checkpoint:
+
+- Stop implementation work and state exactly what the owner needs to do.
+- Give a concise checklist of expected results and the exact confirmation phrase wanted.
+- Never assume a manual action was completed; do not advance until the owner confirms.
+- After confirmation, verify independently and report the results. Verification must be
+  read-only: files on disk, public HTTP responses, logs, generated models, and — for database
+  state — a snapshot taken with SQLite's online backup API from a read-only connection. Never
+  modify the database directly.
+
 ## Never commit
 
 - SQLite files: `umbraco/Data/*.sqlite.db`, `*.sqlite.db-wal`, `*.sqlite.db-shm`
@@ -57,18 +94,38 @@ Run `pwsh ./scripts/Test-Prerequisites.ps1` after staging and before committing;
   OpenIddict error ID2083. Use https://localhost:44370/umbraco.
 - SQLite runs in WAL mode; most data can live in the `-wal` file. Back up all three files with the app stopped.
 
+## Umbraco 17.8.1 behaviour learned in Milestone 2
+
+- The content model (Document Types, Data Types, template records, content, media) lives only in
+  the database and `wwwroot/media/`. Views reference it by alias. See `docs/02-content-model.md` §8.
+- Templates created with a Document Type get a **PascalCase** alias and file (`HomePage.cshtml`),
+  while the Document Type alias stays camelCase (`homePage`).
+- `InMemoryAuto` models exist only at runtime (`umbraco/Data/TEMP/InMemoryAuto/models.generated.cs`)
+  and `RazorCompileOnBuild=false`, so `dotnet build` never compiles views. Use
+  `scripts/Test-Site.ps1` to catch view errors.
+- Template file **contents** are owned by Git; do not edit them in the backoffice.
+- The default Richtext editor toolbar has no heading button. Rich-text HTML is not sanitised
+  (`NoopHtmlSanitizer`) and renders unencoded.
+- Save updates the draft in place; publish creates a new version and refreshes the published cache
+  (`cmsContentNu`); unpublish deletes the published cache row. History is the audit log, not versions.
+- The URL content finder is `ContentFinderByUrlNew` (`IDocumentUrlService`); `ContentFinderByUrl`
+  is obsolete and unregistered.
+
 ## Common commands
 
 ```powershell
 pwsh ./scripts/Test-Prerequisites.ps1          # environment + Git hygiene checks
 dotnet build FunkyFreshFarm.slnx
 dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.UI
+pwsh ./scripts/Test-Site.ps1                   # read-only smoke test of the running site
 ```
 
 Site: https://localhost:44370 · Backoffice: https://localhost:44370/umbraco
 
 ## Layout
 
-- `src/FunkyFreshFarm.UmbracoLab/` — the Umbraco web application
-- `scripts/` — PowerShell helpers
-- `docs/` — installation guide, manual test checklist, verification log
+- `src/FunkyFreshFarm.UmbracoLab/` — the Umbraco web application (`Views/`, `wwwroot/css/`)
+- `scripts/` — PowerShell helpers (`Test-Prerequisites.ps1`, `Test-Site.ps1`)
+- `docs/` — installation guide, content model, manual test checklist, verification log
+- `assets/placeholder-images/` — placeholder PNGs uploaded through the backoffice
+- `assets/images/` — the owner's artwork; untracked; do not modify or commit without the owner's decision
