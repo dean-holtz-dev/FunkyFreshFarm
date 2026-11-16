@@ -297,9 +297,9 @@ Procedures were given step by step during the session; details and evidence are 
 | MT-21 | Restart with `AddDeliveryApi()`, the new configuration, and the handler (dotnet run rebuilds) | Pass | 2026-11-15 |
 | MT-22 | Stage T1: edit Zinnia's Description, **Save** only; no publish log, API and Razor unchanged | Pass | 2026-11-15 |
 | MT-23 | Stage T2: **Save and publish**; handler log line appears; API and Razor show the change | Pass | 2026-11-15 |
-| MT-24 | Run `scripts/Test-DeliveryApi.ps1` in your own terminal | **Not run** | |
-| MT-25 | Inspect a Delivery API request in Swagger UI or Postman (optional) | **Not run** | |
-| MT-26 | Hit a breakpoint in `ContentPublishedLoggingHandler.Handle` with an attached debugger (optional) | **Not run** | |
+| MT-24 | Run `scripts/Test-DeliveryApi.ps1` in your own terminal | Pass | 2026-11-15 |
+| MT-25 | Inspect a Delivery API request in Swagger UI or Postman (optional) | Skipped (owner decision) | 2026-11-15 |
+| MT-26 | Hit a breakpoint in `ContentPublishedLoggingHandler.Handle` with an attached debugger (optional) | Skipped (owner decision) | 2026-11-15 |
 
 ## MT-21 to MT-23 — Restart and end-to-end trace
 
@@ -330,10 +330,10 @@ Procedures were given step by step during the session; details and evidence are 
 **Expected:** fourteen `[PASS]` lines and `Passed: 14  Failed: 0  Exit code: 0`. If the
 "Directory children query" check reports `total is 0`, wait a minute after the app's first request and rerun.
 
-- [ ] Pass
+- [x] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** confirmed by the owner on 2026-11-15: `Passed: 14  Failed: 0  Exit code: 0`.
 
 ## MT-25 — Inspect a request in Swagger UI or Postman (optional)
 
@@ -347,7 +347,7 @@ Procedures were given step by step during the session; details and evidence are 
 - [ ] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** skipped by the owner's decision on 2026-11-15 (optional; time constraints). Not a failure.
 
 ## MT-26 — Breakpoint in the notification handler (optional)
 
@@ -362,4 +362,4 @@ aggregator frames. Continue, and the log line appears.
 - [ ] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** skipped by the owner's decision on 2026-11-15 (optional; time constraints). Not a failure.

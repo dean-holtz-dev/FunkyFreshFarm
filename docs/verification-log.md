@@ -249,9 +249,9 @@ changed the plan, and **INFO** marks a recorded fact.
 | M3-28 | API and Razor after publish | PASS | Item and query: 3 lines, `updateDate` 02:42:04Z; Razor: 2 `<br />` |
 | M3-29 | Snapshot after publish | PASS | v17 published, new current v23, `edited=0`; published cache row `rv` 1→2 |
 | M3-30 | Smoke tests after trace | PASS | Site 10/10; Delivery API 14/14 |
-| M3-31 | Owner runs `Test-DeliveryApi.ps1` (MT-24) | NOT RUN | Pending owner |
-| M3-32 | Swagger / Postman inspection (MT-25, optional) | NOT RUN | Pending owner |
-| M3-33 | Debugger breakpoint in handler (MT-26, optional) | NOT RUN | Pending owner |
+| M3-31 | Owner runs `Test-DeliveryApi.ps1` (MT-24) | PASS | Owner's terminal: `Passed: 14  Failed: 0  Exit code: 0` |
+| M3-32 | Swagger / Postman inspection (MT-25, optional) | NOT RUN | Skipped by owner decision (optional) |
+| M3-33 | Debugger breakpoint in handler (MT-26, optional) | NOT RUN | Skipped by owner decision (optional) |
 
 ## Known issues (Milestone 3)
 
