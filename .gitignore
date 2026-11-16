@@ -23,6 +23,12 @@ artifacts/
 [Tt]est[Rr]esults/
 *.binlog
 
+# JSON schema files that Umbraco.Cms.Targets copies into every project referencing Umbraco
+# (including the test project) on each build
+appsettings-schema.json
+appsettings-schema.*.json
+umbraco-package-schema.json
+
 # Local Umbraco runtime state, anywhere in the tree (defence in depth)
 *.sqlite.db
 *.sqlite.db-shm

@@ -548,6 +548,9 @@ Bright, long-lasting blooms in every color of the sunset. Zinnias love summer he
 Cut flowers often: the more you pick, the more they bloom.
 ```
 
+*Milestone 3's tracing exercise added a third line, `Sow seeds directly in warm soil after the
+last frost.` (see 03-api-and-extensions.md §10). Neither smoke test depends on Zinnia's description.*
+
 ### Growing Guide (Guide Page)
 
 Name: `Growing Guide`

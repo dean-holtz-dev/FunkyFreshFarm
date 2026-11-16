@@ -20,6 +20,7 @@ and commercial or paid Umbraco extensions.
 |---|---|
 | 1. Installation and project foundation | Complete |
 | 2. Content modelling and Razor rendering | Complete: four Document Types, a homepage, a plant directory with plant pages, a growing guide, shared layout and navigation, responsive CSS, publishing exercises, and a site smoke test |
+| 3. Content Delivery API and .NET extensibility | Complete: Delivery API v2 enabled (public, published content only, no preview key), a `ContentPublishedNotification` logging handler with unit tests, and an API verification script |
 
 **Database-backed state.** The Document Types, Data Types, template records, pages, and media
 exist only in the local SQLite database and `wwwroot/media/`, not in Git. A fresh clone has the
@@ -44,6 +45,7 @@ Exact versions verified on 2026-11-15 (see [docs/verification-log.md](docs/verif
 | OpenIddict | 7.7.1 (transitive) | transitive |
 | Examine (Lucene search) | 3.10.0 (transitive) | transitive |
 | Microsoft.ICU.ICU4C.Runtime | 72.1.0.3 | `Directory.Packages.props` |
+| Test stack | xUnit 2.9.3, Microsoft.NET.Test.Sdk 17.14.1, NSubstitute 6.2.0, Microsoft.Extensions.Diagnostics.Testing 10.11.0 | `tests/FunkyFreshFarm.UmbracoLab.Tests/*.csproj` |
 | Windows / PowerShell / Git | Windows 11 Pro 26200 / 7.6.10 / 2.52.0 | `scripts/Test-Prerequisites.ps1` |
 
 ## Setup
@@ -86,6 +88,17 @@ It runs 10 read-only checks (routes, status codes, content markers, image proces
 `0` on success, `1` on any failure. Prerequisites and the required content are listed in
 [docs/02-content-model.md §13](docs/02-content-model.md#13-testing-the-public-site).
 
+### Test the Delivery API and the C# code
+
+```powershell
+pwsh ./scripts/Test-DeliveryApi.ps1    # 14 read-only checks of the JSON API
+dotnet test FunkyFreshFarm.slnx        # unit tests for the notification handler
+```
+
+The API test needs the app running and the Delivery API index built (about a minute after the first
+request following startup). See [docs/03-api-and-extensions.md §7](docs/03-api-and-extensions.md#7-running-the-verification).
+C# changes require stopping the app before building, because the running process locks `bin/`.
+
 ### First run on a new clone
 
 The SQLite database and its connection string are local state and are not in Git. On a fresh
@@ -101,6 +114,8 @@ Then recreate the content model and pages with
 | Website | https://localhost:44370/ | Also served on http://localhost:41388/. Pages: `/`, `/plants/`, `/plants/heirloom-tomato/`, `/plants/basil/`, `/plants/zinnia/`, `/growing-guide/` |
 | Backoffice | https://localhost:44370/umbraco | **HTTPS only.** Login over HTTP fails with OpenIddict error ID2083 |
 | Server status API | https://localhost:44370/umbraco/management/api/v1/server/status | Returns `{"serverStatus":"Run"}` once installed |
+| Content Delivery API | https://localhost:44370/umbraco/delivery/api/v2/content/item/ | Public, published content only. Example: `/umbraco/delivery/api/v2/content?fetch=children:/plants/` |
+| Swagger UI | https://localhost:44370/umbraco/swagger | Select the **Umbraco Delivery API** definition; not available in Production runtime mode |
 
 Ports come from `src/FunkyFreshFarm.UmbracoLab/Properties/launchSettings.json` (profile `Umbraco.Web.UI`).
 
@@ -118,16 +133,21 @@ FunkyFreshFarm/
 ├─ docs/
 │  ├─ 01-installation.md         Installation, configuration, architecture, backup, troubleshooting
 │  ├─ 02-content-model.md        Content model, backoffice recreation, Razor, publishing, testing
+│  ├─ 03-api-and-extensions.md   Delivery API, security, notification handler, end-to-end trace
 │  ├─ manual-test-checklist.md   Human verification steps and outcomes
 │  └─ verification-log.md        Commands run, results, evidence, known issues
 ├─ scripts/
 │  ├─ Test-Prerequisites.ps1     Read-only environment and Git-hygiene checks
-│  └─ Test-Site.ps1              Read-only smoke test of the public site
+│  ├─ Test-Site.ps1              Read-only smoke test of the public site
+│  └─ Test-DeliveryApi.ps1       Read-only semantic test of the Content Delivery API
+├─ tests/
+│  └─ FunkyFreshFarm.UmbracoLab.Tests/  xUnit tests for the notification handler and its registration
 └─ src/
    └─ FunkyFreshFarm.UmbracoLab/ The Umbraco web application (generated from Umbraco.Templates 17.8.1)
-      ├─ Program.cs              Umbraco boot and middleware pipeline
+      ├─ Program.cs              Umbraco boot and middleware pipeline (+ AddDeliveryApi)
       ├─ Directory.Packages.props Central package versions (Umbraco pinned to 17.8.1)
       ├─ appsettings*.json       Configuration (see docs for what is tracked vs local)
+      ├─ Notifications/          ContentPublishedLoggingHandler + NotificationsComposer
       ├─ Views/
       │  ├─ _Layout.cshtml        Shared layout (code-owned; not a backoffice template)
       │  ├─ HomePage.cshtml, PlantIndexPage.cshtml, PlantPage.cshtml, GuidePage.cshtml
@@ -141,6 +161,7 @@ FunkyFreshFarm/
 
 - [Installation guide](docs/01-installation.md): setup, configuration, SQLite, startup architecture, backup, troubleshooting
 - [Content model and rendering](docs/02-content-model.md): why Umbraco models content this way, Document Types, backoffice recreation, Razor, publishing lifecycle, testing
+- [Delivery API and extensions](docs/03-api-and-extensions.md): API configuration, endpoints, JSON shapes, security, notification handler, end-to-end trace
 - [Manual test checklist](docs/manual-test-checklist.md)
 - [Verification log](docs/verification-log.md)
 - [Umbraco 17 documentation](https://docs.umbraco.com/umbraco-cms/17.latest/)

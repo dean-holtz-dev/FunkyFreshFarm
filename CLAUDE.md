@@ -111,6 +111,29 @@ Run `pwsh ./scripts/Test-Prerequisites.ps1` after staging and before committing;
 - The URL content finder is `ContentFinderByUrlNew` (`IDocumentUrlService`); `ContentFinderByUrl`
   is obsolete and unregistered.
 
+## Umbraco 17.8.1 behaviour learned in Milestone 3
+
+- The Delivery API needs **both** `.AddDeliveryApi()` in `Program.cs` (restart required) and
+  `Umbraco:CMS:DeliveryApi:Enabled = true`. Only `/umbraco/delivery/api/v2/` is served.
+- Item endpoints read the published cache; the query endpoint reads the Examine
+  `DeliveryApiContentIndex`, which is built about one minute after the first request following
+  startup. `{"total":0}` right after a restart means "index not built yet".
+- No `ApiKey` is configured, so preview and drafts can never be delivered; failed access checks return
+  401 (`ApiAccessService`). Media delivery is off (401). If an API key is ever added, it is a secret:
+  keep it in `appsettings.Local.json`.
+- The API returns stored values: Razor fallbacks (e.g. Name for empty `commonName`) do not apply.
+- Backoffice **Save and publish** calls `PUT .../document/{key}/update-and-publish`
+  (`UpdateAndPublishDocumentController`), not `PublishDocumentController`.
+- "-ed" notification handlers run **after the database commit**, synchronously on the publishing
+  request's thread; an exception surfaces to the editor although the content is already published.
+- C# changes cannot be built into `bin/` while the app runs. To compile-check without stopping it,
+  build or test with `--output` into the scratchpad, then delete that output: it contains a copy
+  of `appsettings.Local.json`.
+- `Umbraco.Cms.Targets` copies JSON schema files into every project that references Umbraco,
+  including tests; the root `.gitignore` covers them.
+- `Microsoft.Extensions.*` test helpers must stay on the 10.x line; Umbraco 17 constrains them
+  to `(,10.0.32767]`.
+
 ## Common commands
 
 ```powershell
@@ -118,14 +141,17 @@ pwsh ./scripts/Test-Prerequisites.ps1          # environment + Git hygiene check
 dotnet build FunkyFreshFarm.slnx
 dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.UI
 pwsh ./scripts/Test-Site.ps1                   # read-only smoke test of the running site
+pwsh ./scripts/Test-DeliveryApi.ps1            # read-only Delivery API test of the running site
+dotnet test FunkyFreshFarm.slnx                # unit tests
 ```
 
 Site: https://localhost:44370 · Backoffice: https://localhost:44370/umbraco
 
 ## Layout
 
-- `src/FunkyFreshFarm.UmbracoLab/` — the Umbraco web application (`Views/`, `wwwroot/css/`)
-- `scripts/` — PowerShell helpers (`Test-Prerequisites.ps1`, `Test-Site.ps1`)
-- `docs/` — installation guide, content model, manual test checklist, verification log
+- `src/FunkyFreshFarm.UmbracoLab/` — the Umbraco web application (`Views/`, `wwwroot/css/`, `Notifications/`)
+- `tests/FunkyFreshFarm.UmbracoLab.Tests/` — xUnit tests (not under central package management; versions in the csproj)
+- `scripts/` — PowerShell helpers (`Test-Prerequisites.ps1`, `Test-Site.ps1`, `Test-DeliveryApi.ps1`)
+- `docs/` — installation, content model, API and extensions, manual test checklist, verification log
 - `assets/placeholder-images/` — placeholder PNGs uploaded through the backoffice
 - `assets/images/` — the owner's artwork; untracked; do not modify or commit without the owner's decision

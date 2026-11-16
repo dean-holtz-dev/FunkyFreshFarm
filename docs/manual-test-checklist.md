@@ -6,6 +6,7 @@ only after the owner confirms it.
 
 - [Milestone 1 — Installation](#milestone-1--installation) (MT-01 to MT-09)
 - [Milestone 2 — Content model and rendering](#milestone-2--content-model-and-rendering) (MT-10 to MT-20)
+- [Milestone 3 — Delivery API and extensibility](#milestone-3--delivery-api-and-extensibility) (MT-21 to MT-26)
 
 # Milestone 1 — Installation
 
@@ -281,3 +282,84 @@ the guide's headings, list, and bold text; phone width via F12 → Ctrl+Shift+M;
 - [ ] Fail
 
 **Notes:** confirmed by the owner on 2026-11-15: `Passed: 10  Failed: 0  Exit code: 0`.
+
+---
+
+# Milestone 3 — Delivery API and extensibility
+
+Procedures were given step by step during the session; details and evidence are in
+[03-api-and-extensions.md](03-api-and-extensions.md) §10 and the verification log.
+
+## Summary
+
+| ID | Test | Outcome | Date |
+|---|---|---|---|
+| MT-21 | Restart with `AddDeliveryApi()`, the new configuration, and the handler (dotnet run rebuilds) | Pass | 2026-11-15 |
+| MT-22 | Stage T1: edit Zinnia's Description, **Save** only; no publish log, API and Razor unchanged | Pass | 2026-11-15 |
+| MT-23 | Stage T2: **Save and publish**; handler log line appears; API and Razor show the change | Pass | 2026-11-15 |
+| MT-24 | Run `scripts/Test-DeliveryApi.ps1` in your own terminal | **Not run** | |
+| MT-25 | Inspect a Delivery API request in Swagger UI or Postman (optional) | **Not run** | |
+| MT-26 | Hit a breakpoint in `ContentPublishedLoggingHandler.Handle` with an attached debugger (optional) | **Not run** | |
+
+## MT-21 to MT-23 — Restart and end-to-end trace
+
+| ID | Steps | Expected | Owner observed |
+|---|---|---|---|
+| MT-21 | Ctrl+C; `dotnet run --project src/FunkyFreshFarm.UmbracoLab --launch-profile Umbraco.Web.UI`; open the home page once | Builds, starts without errors; home page unchanged | "Restart done" |
+| MT-22 | In Zinnia's Description add the line `Sow seeds directly in warm soil after the last frost.`; **Save** | Published (pending changes); no `Published plantPage Zinnia` console line; API and page show 2 lines | "Stage T1 done" |
+| MT-23 | **Save and publish** Zinnia | One console line `Published plantPage Zinnia (id 1073, key …)`; API JSON and page show 3 lines | `[20:42:04 INF] Published plantPage Zinnia (id 1073, key 41af6409-1759-4c16-bffb-23078a1d57ea)` |
+
+- [x] MT-21 Pass
+- [x] MT-22 Pass
+- [x] MT-23 Pass
+
+## MT-24 — Run the Delivery API test yourself
+
+1. With the app running, in a PowerShell window at `C:\dev\FunkyFreshFarm`, run:
+
+   ```powershell
+   pwsh ./scripts/Test-DeliveryApi.ps1
+   ```
+
+   Or, in Windows PowerShell 5.1:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\Test-DeliveryApi.ps1
+   ```
+
+**Expected:** fourteen `[PASS]` lines and `Passed: 14  Failed: 0  Exit code: 0`. If the
+"Directory children query" check reports `total is 0`, wait a minute after the app's first request and rerun.
+
+- [ ] Pass
+- [ ] Fail
+
+**Notes:**
+
+## MT-25 — Inspect a request in Swagger UI or Postman (optional)
+
+1. Open `https://localhost:44370/umbraco/swagger` and select the **Umbraco Delivery API** definition.
+2. Expand `GET /umbraco/delivery/api/v2/content/item/{path}`, **Try it out**, enter `plants/zinnia`, **Execute**.
+3. Or in Postman: GET `https://localhost:44370/umbraco/delivery/api/v2/content/item/plants/zinnia/`
+   (use `http://localhost:41388/...` if Postman rejects the certificate); then add header `Preview: true`.
+
+**Expected:** 200 with Zinnia's JSON (three description lines); with `Preview: true`, 401.
+
+- [ ] Pass
+- [ ] Fail
+
+**Notes:**
+
+## MT-26 — Breakpoint in the notification handler (optional)
+
+1. With the app running, attach the C# debugger (VS Code + C# Dev Kit, or Visual Studio 2026) to the
+   `FunkyFreshFarm.UmbracoLab` process.
+2. Set a breakpoint in `ContentPublishedLoggingHandler.Handle`.
+3. In the backoffice, **Save and publish** any plant.
+
+**Expected:** execution stops in `Handle`; the call stack includes the scope disposal and event
+aggregator frames. Continue, and the log line appears.
+
+- [ ] Pass
+- [ ] Fail
+
+**Notes:**
