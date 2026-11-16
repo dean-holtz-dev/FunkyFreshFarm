@@ -3,6 +3,7 @@
 - [Milestone 1 — Installation and project foundation](#milestone-1--installation-and-project-foundation)
 - [Milestone 2 — Content modelling and Razor rendering](#milestone-2--content-modelling-and-razor-rendering)
 - [Milestone 3 — Content Delivery API and .NET extensibility](#milestone-3--content-delivery-api-and-net-extensibility)
+- [Milestone 4 — Source exploration and engineering review](#milestone-4--source-exploration-and-engineering-review)
 
 # Milestone 1 — Installation and project foundation
 
@@ -265,3 +266,40 @@ changed the plan, and **INFO** marks a recorded fact.
 | Handler exceptions surface after commit | Editor may see an error for a successful publish | Handler kept trivial; documented (03 §9) |
 | Schema files copied into `tests/` | Noise | Gitignored |
 | Owner's `assets/images/` | Untracked | Not committed pending the owner's decision |
+
+---
+
+# Milestone 4 — Source exploration and engineering review
+
+| | |
+|---|---|
+| Date | 2026-11-15 (times are local, UTC−06:00) |
+| Scope | Read-only investigation of Umbraco's source; architecture briefing; operational review; backup runbook |
+| Inspected source | `umbraco/Umbraco-CMS` tag `release-17.8.1` = commit `89c87c2f768418d877281d3dcaba9c0a7e806461` (2026-11-04), shallow clone in a scratch folder outside the repository; not built or modified |
+| Git revision | Baseline `097355f`. This log is part of the Milestone 4 commit |
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M4-1 | `git status`; baseline `Test-Prerequisites`, `Test-Site`, `Test-DeliveryApi` | PASS | 14/0/0; 10/10; 14/14 |
+| M4-2 | `dotnet test FunkyFreshFarm.slnx` (with build) while the app runs | FAIL (expected) | MSB3027: apphost locked by the running app; nothing copied. Rerun with `--no-build`: 3/3 |
+| M4-3 | `git ls-remote ... refs/tags/release-17.8.1` | PASS | `89c87c2f…`, matching the running build `17.8.1+89c87c2` |
+| M4-4 | `git clone --depth 1 --branch release-17.8.1` into the scratch folder | FAIL → PASS | Checkout failed: "Filename too long" (scratch path 122 + repo path 202 chars). Fixed with clone-local `core.longpaths=true` (global config untouched), `git restore`, `git reset`: 17,619 files, clean against `89c87c2` |
+| M4-5 | Project and package references from every `src/*/*.csproj` | PASS | Dependency graph in 04-architecture.md §2; Core has no project or ASP.NET Core references; Web.Common is the first ASP.NET Core layer |
+| M4-6 | Startup path definitions | PASS | File and line for each step (04 §1) |
+| M4-7 | Content lifecycle definitions | PASS | Controller → `ContentEditingService` → `ContentService.SaveAndPublish` (scope, `ContentTree` write lock) → `DocumentRepository` → immediate `ContentRefreshNotification` → `cmsContentNu` → commit → queued notifications → cache refresher, URL service, index → Razor and Delivery API (04 §3) |
+| M4-8 | Distributed lock implementations | PASS | Both providers `UPDATE umbracoLock … WHERE id = <lockId>` inside the transaction |
+| M4-9 | Backoffice client | PASS | `@umbraco-cms/backoffice` 17.8.1; Lit 3, UUI 2.1.1, RxJS, Tiptap, Monaco; built by `Umbraco.Cms.StaticAssets.csproj` (`npm run build:for:cms`) into the NuGet package |
+| M4-10 | Imaging packages | PASS | ImageSharp 3.2.0 / ImageSharp.Web 3.3.0 (ours); `Umbraco.Cms.Imaging.ImageSharp2` pins `[2.1.13, 3)` |
+| M4-11 | `dotnet run scripts/backup-database.cs` (app running) | PASS | `backups/20261115-210457-hot/Umbraco.sqlite.db`, 1,183,744 bytes; integrity `ok`; 79 tables; 7 documents (6 published); 4 media; 1 user |
+| M4-12 | `--verify-only` on that backup | PASS | integrity `ok` |
+| M4-13 | Rerun into the same folder | PASS | Refused to overwrite (exit 2) |
+| M4-14 | Live database after backups | PASS | Main file size unchanged; app `Run`; backup folder gitignored |
+| M4-15 | Restore over the live database | NOT RUN | Requires owner approval (runbook documents it) |
+
+## Known issues (Milestone 4)
+
+| Issue | Impact | Status |
+|---|---|---|
+| Content model not source-controlled | New environments need hand recreation | Recommendation in 04 §5 |
+| Backups on the same disk | Single point of failure | Recommendation in 04 §5 |
+| Full restore drill not performed | Restore steps untested end to end | Backup integrity verified; swap needs approval |

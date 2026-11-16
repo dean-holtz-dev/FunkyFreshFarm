@@ -134,6 +134,18 @@ Run `pwsh ./scripts/Test-Prerequisites.ps1` after staging and before committing;
 - `Microsoft.Extensions.*` test helpers must stay on the 10.x line; Umbraco 17 constrains them
   to `(,10.0.32767]`.
 
+## Milestone 4 notes (source exploration)
+
+- Umbraco source of truth: tag `release-17.8.1` = commit `89c87c2f768418d877281d3dcaba9c0a7e806461`
+  (matches the running build `17.8.1+89c87c2`). Read it from a shallow clone **outside** `C:\dev`
+  (the scratchpad); on Windows the clone needs `git config --local core.longpaths true`.
+  Never build or modify that clone. Link to it with commit permalinks.
+- `dotnet test FunkyFreshFarm.slnx` rebuilds first and fails with MSB3027 while the app runs;
+  use `--no-build` when the app is running.
+- Hot database backups: `dotnet run scripts/backup-database.cs` (read-only on the live database,
+  refuses to overwrite, integrity-checked). Restoring over the live database requires explicit
+  owner approval.
+
 ## Common commands
 
 ```powershell
@@ -152,6 +164,6 @@ Site: https://localhost:44370 · Backoffice: https://localhost:44370/umbraco
 - `src/FunkyFreshFarm.UmbracoLab/` — the Umbraco web application (`Views/`, `wwwroot/css/`, `Notifications/`)
 - `tests/FunkyFreshFarm.UmbracoLab.Tests/` — xUnit tests (not under central package management; versions in the csproj)
 - `scripts/` — PowerShell helpers (`Test-Prerequisites.ps1`, `Test-Site.ps1`, `Test-DeliveryApi.ps1`)
-- `docs/` — installation, content model, API and extensions, manual test checklist, verification log
+- `docs/` — installation, content model, API and extensions, architecture, manual test checklist, verification log
 - `assets/placeholder-images/` — placeholder PNGs uploaded through the backoffice
 - `assets/images/` — the owner's artwork; untracked; do not modify or commit without the owner's decision

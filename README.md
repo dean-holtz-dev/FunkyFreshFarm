@@ -21,6 +21,7 @@ and commercial or paid Umbraco extensions.
 | 1. Installation and project foundation | Complete |
 | 2. Content modelling and Razor rendering | Complete: four Document Types, a homepage, a plant directory with plant pages, a growing guide, shared layout and navigation, responsive CSS, publishing exercises, and a site smoke test |
 | 3. Content Delivery API and .NET extensibility | Complete: Delivery API v2 enabled (public, published content only, no preview key), a `ContentPublishedNotification` logging handler with unit tests, and an API verification script |
+| 4. Source exploration and engineering review | Complete: source-backed architecture briefing against Umbraco commit `89c87c2` (tag `release-17.8.1`), operational review, and a tested hot-backup tool with a backup/restore runbook |
 
 **Database-backed state.** The Document Types, Data Types, template records, pages, and media
 exist only in the local SQLite database and `wwwroot/media/`, not in Git. A fresh clone has the
@@ -99,6 +100,16 @@ The API test needs the app running and the Delivery API index built (about a min
 request following startup). See [docs/03-api-and-extensions.md §7](docs/03-api-and-extensions.md#7-running-the-verification).
 C# changes require stopping the app before building, because the running process locks `bin/`.
 
+### Back up the database
+
+```powershell
+dotnet run scripts/backup-database.cs     # hot, consistent, verified copy into backups/<stamp>-hot/
+```
+
+The app can keep running; the live database is opened read-only. Copy `appsettings.Local.json` and
+`wwwroot/media` alongside it, and see the full runbook (including restore) in
+[docs/04-architecture.md §10](docs/04-architecture.md#10-local-backup-and-restore-runbook).
+
 ### First run on a new clone
 
 The SQLite database and its connection string are local state and are not in Git. On a fresh
@@ -134,12 +145,14 @@ FunkyFreshFarm/
 │  ├─ 01-installation.md         Installation, configuration, architecture, backup, troubleshooting
 │  ├─ 02-content-model.md        Content model, backoffice recreation, Razor, publishing, testing
 │  ├─ 03-api-and-extensions.md   Delivery API, security, notification handler, end-to-end trace
+│  ├─ 04-architecture.md         Source-backed architecture briefing, operational review, backup runbook
 │  ├─ manual-test-checklist.md   Human verification steps and outcomes
 │  └─ verification-log.md        Commands run, results, evidence, known issues
 ├─ scripts/
 │  ├─ Test-Prerequisites.ps1     Read-only environment and Git-hygiene checks
 │  ├─ Test-Site.ps1              Read-only smoke test of the public site
-│  └─ Test-DeliveryApi.ps1       Read-only semantic test of the Content Delivery API
+│  ├─ Test-DeliveryApi.ps1       Read-only semantic test of the Content Delivery API
+│  └─ backup-database.cs         Hot SQLite backup + integrity check (.NET file-based app)
 ├─ tests/
 │  └─ FunkyFreshFarm.UmbracoLab.Tests/  xUnit tests for the notification handler and its registration
 └─ src/
@@ -162,6 +175,7 @@ FunkyFreshFarm/
 - [Installation guide](docs/01-installation.md): setup, configuration, SQLite, startup architecture, backup, troubleshooting
 - [Content model and rendering](docs/02-content-model.md): why Umbraco models content this way, Document Types, backoffice recreation, Razor, publishing lifecycle, testing
 - [Delivery API and extensions](docs/03-api-and-extensions.md): API configuration, endpoints, JSON shapes, security, notification handler, end-to-end trace
+- [Architecture and engineering review](docs/04-architecture.md): startup and lifecycle traced through Umbraco's source, project boundaries, operational risks, testing, upgrades, backup/restore runbook
 - [Manual test checklist](docs/manual-test-checklist.md)
 - [Verification log](docs/verification-log.md)
 - [Umbraco 17 documentation](https://docs.umbraco.com/umbraco-cms/17.latest/)
