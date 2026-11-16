@@ -218,7 +218,7 @@ public HTTP requests, generated models, logs). Results are in the verification l
 | MT-17 | Stage C: a new plant (Mint) appears in the directory | Pass | 2026-11-15 |
 | MT-18 | Stage D: unpublishing Mint removes it publicly but keeps it in the tree | Pass | 2026-11-15 |
 | MT-19 | Stage E: state persists across a Ctrl+C restart | Pass | 2026-11-15 |
-| MT-20 | Run `scripts/Test-Site.ps1` in your own terminal | **Not run** | |
+| MT-20 | Run `scripts/Test-Site.ps1` in your own terminal | Pass | 2026-11-15 |
 
 ## MT-10 to MT-13 — Backoffice configuration and content
 
@@ -277,7 +277,7 @@ the guide's headings, list, and bold text; phone width via F12 → Ctrl+Shift+M;
 
 **Expected:** ten `[PASS]` lines and `Passed: 10  Failed: 0  Exit code: 0`.
 
-- [ ] Pass
+- [x] Pass
 - [ ] Fail
 
-**Notes:**
+**Notes:** confirmed by the owner on 2026-11-15: `Passed: 10  Failed: 0  Exit code: 0`.

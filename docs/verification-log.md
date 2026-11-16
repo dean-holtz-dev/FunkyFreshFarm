@@ -177,7 +177,7 @@ changed the plan, and **INFO** marks a recorded fact.
 | M2-37 | Verify routing classes for docs | FINDING | URL finder is `ContentFinderByUrlNew` (`IDocumentUrlService`); `ContentFinderByUrl` is obsolete and unregistered; docs corrected |
 | M2-38 | `dotnet build FunkyFreshFarm.slnx -c Debug` (app running) | PASS | 0 warnings, 0 errors (incremental; app unaffected) |
 | M2-39 | Final `Test-Site.ps1` | PASS | 10/10 |
-| M2-40 | Owner runs `Test-Site.ps1` (MT-20) | NOT RUN | Pending owner |
+| M2-40 | Owner runs `Test-Site.ps1` (MT-20) | PASS | Owner's terminal: `Passed: 10  Failed: 0  Exit code: 0` |
 
 ## Known issues (Milestone 2)
 
