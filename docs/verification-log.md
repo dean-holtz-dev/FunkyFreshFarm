@@ -5,6 +5,7 @@
 - [Milestone 3 — Content Delivery API and .NET extensibility](#milestone-3--content-delivery-api-and-net-extensibility)
 - [Milestone 4 — Source exploration and engineering review](#milestone-4--source-exploration-and-engineering-review)
 - [Milestone 5 — Visual identity](#milestone-5--visual-identity)
+- [Publication on GitHub](#publication-on-github)
 
 # Milestone 1 — Installation and project foundation
 
@@ -386,3 +387,22 @@ App instance PID 11492, started 2026-11-16 11:45 local, `serverStatus: Run`.
 | Largest JPEGs 330–485 KB (screen-print texture) | Heavier desktop pages | `srcset` serves smaller files to small screens; could add WebP derivatives later |
 | Originals (32.6 MB) untracked | Derivatives could not be rebuilt on another machine | **Resolved:** committed as plain Git objects (`090cd26`) |
 | Placeholder media items may remain in the Media Library | Clutter only; no page references them (M5-25, M5-26) | Optional cleanup by the owner; not checked |
+
+---
+
+# Publication on GitHub
+
+| | |
+|---|---|
+| Date | 2026-11-17 |
+| Repository | https://github.com/dean-holtz-dev/FunkyFreshFarm (public) |
+| Owner decisions | Keep the commit email `dean.holtz.dev@gmail.com`; MIT for code, docs, and artwork (artwork generated with ChatGPT under the owner's direction); name `FunkyFreshFarm`; description "Umbraco 17 learning lab: a branded, content-managed site on .NET 10 and SQLite" |
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| P-1 | Full-history audit before publishing | PASS | The HMAC key value and connection string from `appsettings.Local.json` occur in no commit; no database, log, media, or `appsettings.Local.json` was ever tracked; no machine names, Windows user paths, email addresses, or employer references in tracked files |
+| P-2 | `LICENSE` (unmodified MIT text) and README Licence section | PASS | Committed in `6a03a24`; fonts stay under OFL 1.1; Umbraco is MIT (checked in its `LICENSE.md` at `release-17.8.1`) |
+| P-3 | `gh repo create FunkyFreshFarm --private --source . --remote origin --push` | PASS | Remote `main` = local `HEAD` `6a03a24`; 11 commits; 91 files on GitHub = 91 tracked locally; 0 forbidden paths; GitHub detects `MIT`; one author email |
+| P-4 | `gh repo edit --visibility public` | PASS | `visibility: public`; anonymous `GET` of the repository page and of the raw `LICENSE` → 200 |
+| P-5 | Secret scanning and push protection (`PATCH repos/…`, `security_and_analysis`) | PASS | Both read back as `enabled` |
+

@@ -81,6 +81,11 @@ At every manual checkpoint:
 Run `pwsh ./scripts/Test-Prerequisites.ps1` after staging and before committing; the
 "Git hygiene" and "Tracked secrets" checks must pass.
 
+The repository is **public** at https://github.com/dean-holtz-dev/FunkyFreshFarm (remote `origin`,
+secret scanning and push protection on). A push publishes immediately and permanently, so never
+push without the owner's explicit go-ahead for that push. Everything in it is MIT-licensed except
+the OFL fonts.
+
 ## Umbraco 17.8.1 behaviour learned in Milestone 1
 
 - `dotnet new umbraco --release LTS` writes a floating `17.*` version; `--release Latest` pins `17.8.1`.
