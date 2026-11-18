@@ -22,8 +22,9 @@ file into the Media Library.
 
 ## 2. Provenance of the originals
 
-All artwork was generated separately by the owner for this fictional lab and supplied on
-2026-11-15 in `assets/images/`. The originals (12 PNGs, 32.6 MB) were **committed on 2026-11-17**
+All artwork was generated with ChatGPT under the owner's direction for this fictional lab and
+supplied on 2026-11-15 in `assets/images/`. It is released under the repository's MIT licence
+(`LICENSE`), like the code and documentation; only the fonts keep their own licence (§3). The originals (12 PNGs, 32.6 MB) were **committed on 2026-11-17**
 at the owner's request (commit `090cd26`, plain Git objects; no Git LFS, because there is no remote
 and no file exceeds 3.6 MB), so any clone can rebuild the derivatives. No script ever modifies them.
 Identify them by SHA-256 prefix (re-checked against the committed files on 2026-11-17):
