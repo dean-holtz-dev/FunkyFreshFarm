@@ -232,7 +232,7 @@ public HTTP requests, generated models, logs). Results are in the verification l
   ("Hero Headline"); the docs were updated to match. Template aliases are PascalCase (`HomePage`).
 - [x] MT-12 Pass. **Notes:** media items are named `Heirloom Tomato`, `Basil`, `Zinnia` (no
   "placeholder" suffix); uploaded files are byte-identical to `assets/placeholder-images/`.
-- [x] MT-13 Pass. **Notes:** Growing Guide body contains the typo "planing" (left as entered).
+- [x] MT-13 Pass. **Notes:** Growing Guide body contains the typo "planing" (left as entered; corrected to "planting" by the owner on 2026-11-17).
   Headings were created without a toolbar heading button (there is none in 17.8.1).
 
 ## MT-14 — Visual check of the rendered site
@@ -371,29 +371,39 @@ aggregator frames. Continue, and the log line appears.
 
 Milestone 4 had no manual tests (documentation and read-only investigation only).
 
-Automated checks so far: Claude Code verified every page at 375, 768 and 1440 px through headless Edge
-(DevTools Protocol device emulation: no horizontal overflow, no broken images, correct hero source
-per width) and reviewed the screenshots. **That is not visual approval**; MT-31 and MT-32 are.
+Claude Code verified every page at 375, 768 and 1440 px through headless Edge (DevTools Protocol
+device emulation: no horizontal overflow, no broken images, correct hero source per width), before
+and after the owner's content steps. That is not visual approval; MT-31 and MT-32 are, and the owner
+gave it on 2026-11-17.
+
+**All six Milestone 5 checks passed.** The owner confirmed on 2026-11-17: "Everything is fantastic."
+Claude's read-only follow-up verification is recorded in [verification-log.md](verification-log.md)
+(M5-21 to M5-30).
 
 ## Summary
 
 | ID | Test | Outcome | Date |
 |---|---|---|---|
-| MT-27 | Upload the three botanical illustrations to Media → Plants | **Not run** | |
-| MT-28 | Assign them as each plant's Plant Image; Save and publish | **Not run** | |
-| MT-29 | Add `storyHeading` / `storyText` to Home Page; fill and publish | **Not run** | |
-| MT-30 | Run all four test scripts in your own terminal | **Not run** | |
-| MT-31 | Visual review at 375, 768, 1440 px | **Not run** | |
-| MT-32 | Keyboard and focus review | **Not run** | |
+| MT-27 | Upload the three botanical illustrations to Media → Plants | Pass | 2026-11-16 |
+| MT-28 | Assign them as each plant's Plant Image; Save and publish | Pass | 2026-11-16 |
+| MT-29 | Add `storyHeading` / `storyText` to Home Page; fill and publish | Pass | 2026-11-17 |
+| MT-30 | Run all four test scripts in your own terminal | Pass | 2026-11-17 |
+| MT-31 | Visual review at 375, 768, 1440 px | Pass | 2026-11-17 |
+| MT-32 | Keyboard and focus review | Pass | 2026-11-17 |
 
 ## MT-27 to MT-29 — Content steps
 
 Follow the procedures in [05-assets.md §5](05-assets.md#5-owner-procedures-manual) (purpose,
 navigation, exact values, expected results, troubleshooting).
 
-- [ ] MT-27 Pass   - [ ] Fail   **Notes:**
-- [ ] MT-28 Pass   - [ ] Fail   **Notes:**
-- [ ] MT-29 Pass   - [ ] Fail   **Notes:**
+- [x] MT-27 Pass   - [ ] Fail   **Notes:** three illustrations uploaded to Media → Plants.
+- [x] MT-28 Pass   - [ ] Fail   **Notes:** assigned and published; the handler logged
+  `Published plantPage` for Heirloom Tomato, Basil, and Zinnia at 12:15 local on 2026-11-16.
+- [x] MT-29 Pass   - [ ] Fail   **Notes:** both properties added (generated model has `StoryHeading`
+  and `StoryText`); Home published at 18:56 local on 2026-11-17; the story panel renders
+  "Grown by hand, shared with joy".
+
+Dates are taken from the publish log entries. The owner confirmed all three on 2026-11-17.
 
 ## MT-30 — Test scripts
 
@@ -418,7 +428,11 @@ dotnet test FunkyFreshFarm.slnx --no-build
 **Expected:** Brand 37/37 (the three "Botanical" checks pass after MT-28), Site 10/10, Delivery API
 14/14, unit tests 3/3. The site test should then report "3 cards: 3 image(s), 0 placeholder(s)".
 
-- [ ] Pass   - [ ] Fail   **Notes:**
+- [x] Pass
+- [ ] Fail
+
+**Notes:** confirmed by the owner on 2026-11-17. Claude's independent rerun the same day matched it:
+Brand 37/37, Site 10/10 ("3 cards: 3 image(s), 0 placeholder(s)"), Delivery API 14/14, unit tests 3/3.
 
 ## MT-31 — Visual review at three widths
 
@@ -437,7 +451,10 @@ first so the new CSS and fonts load.
 
 At every width: no sideways scrolling, no distorted or stretched illustrations, no text over busy artwork.
 
-- [ ] Pass   - [ ] Fail   **Notes:**
+- [x] Pass
+- [ ] Fail
+
+**Notes:** confirmed by the owner on 2026-11-17: "Everything is fantastic."
 
 ## MT-32 — Keyboard and focus
 
@@ -446,4 +463,7 @@ At every width: no sideways scrolling, no distorted or stretched illustrations, 
    clear dark outline (gold outline in the footer).
 3. Open a plant card with **Enter**.
 
-- [ ] Pass   - [ ] Fail   **Notes:**
+- [x] Pass
+- [ ] Fail
+
+**Notes:** confirmed by the owner on 2026-11-17.

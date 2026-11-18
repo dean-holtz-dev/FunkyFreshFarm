@@ -8,7 +8,7 @@
     Read-only. Checks:
       1. Git-managed derivatives in wwwroot/brand: exist, real format signature, expected
          dimensions, size budget. Self-hosted fonts are WOFF2 with their OFL licence files.
-      2. Original artwork in assets/images (untracked): present, so derivatives can be rebuilt.
+      2. Original artwork in assets/images (committed): present, so derivatives can be rebuilt.
          Missing originals are reported as warnings, not failures.
       3. HTTP against the running site: every asset is served with the right content type; pages
          reference the expected art (responsive hero, emblem, sticker, guide, 404, social card);
@@ -144,7 +144,7 @@ function Test-LocalFiles {
         Add-Result "fonts/$licence" $(if ($ok) { 'PASS' } else { 'FAIL' }) $(if ($ok) { 'SIL Open Font License 1.1' } else { 'Missing or not OFL 1.1' })
     }
     $missing = @($originals | Where-Object { -not (Test-Path -LiteralPath (Join-Path $originalsDir $_)) })
-    if ($missing.Count -eq 0) { Add-Result 'Original artwork (assets/images)' 'PASS' "$($originals.Count) originals present (untracked; needed to rebuild derivatives)" }
+    if ($missing.Count -eq 0) { Add-Result 'Original artwork (assets/images)' 'PASS' "$($originals.Count) originals present (needed to rebuild derivatives)" }
     else { Add-Result 'Original artwork (assets/images)' 'WARN' ("Missing: " + ($missing -join ', ') + '. Derivatives cannot be rebuilt without them.') }
 }
 

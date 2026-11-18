@@ -602,9 +602,9 @@ for the list and **Bold** for *sun exposure*. The intended structure:
 - Paragraph, with the words *sun exposure* in **bold**:
   `Check each plant's sun exposure in our plant directory before choosing a spot.`
 
-**As entered in this lab:** the published body matches this structure but contains the typo
-"before **planing**" (instead of "planting"). It is left in place for now. Fixing it is a natural
-first edit for the publishing exercise in §10.
+**As entered in this lab:** the published body matches this structure. It was first entered with
+the typo "before **planing**"; the owner corrected it to "planting" in the backoffice and
+republished on 2026-11-17. Like all content, the fix lives in the database, not in Git.
 
 ## 7. Templates and the shared layout
 
@@ -661,8 +661,9 @@ uncommitted changes.
 
 ### Reproducibility limitations
 
-- **A fresh clone does not reproduce the site.** It contains the Razor views, CSS, and placeholder
-  images, but no Document Types, Data Types, template records, content, or media. Recreate them
+- **A fresh clone does not reproduce the site.** It contains the Razor views, CSS, placeholder
+  images, and (since Milestone 5) the original artwork in `assets/images/`, but no Document Types,
+  Data Types, template records, content, or media. Recreate them
   with §5 and §6, or restore a database backup (see `01-installation.md` §11).
 - **Views depend on database-defined aliases.** Templates use Models Builder classes generated
   from Document Type aliases. With `InMemoryAuto`, those classes exist only at runtime, and the

@@ -191,9 +191,9 @@ changed the plan, and **INFO** marks a recorded fact.
 | Rich text is unsanitised (`NoopHtmlSanitizer`) | Editors can inject arbitrary HTML | Acceptable for a single-admin lab; register a real `IHtmlSanitizer` to harden |
 | "Notifications can not be sent, no site URL is set" (3 per save/publish) | Log noise; no email notifications | Set `Umbraco:CMS:WebRouting:UmbracoApplicationUrl` when email is needed |
 | Default Richtext editor toolbar has no heading button | Headings need `##` + space or Source code | Documented in 02-content-model.md §6 |
-| Growing Guide body typo "planing" | Cosmetic | Owner's content; not changed |
+| Growing Guide body typo "planing" | Cosmetic | **Resolved 2026-11-17:** corrected to "planting" and republished by the owner (M5-32) |
 | Mint exists unpublished | None; tests do not count cards | Republish or delete as desired |
-| Owner's `assets/images/` (12 PNGs, 32.6 MB) | Untracked | Not committed pending the owner's decision |
+| Owner's `assets/images/` (12 PNGs, 32.6 MB) | Untracked | **Resolved 2026-11-17:** committed at the owner's request (`090cd26`) |
 
 ---
 
@@ -266,7 +266,7 @@ changed the plan, and **INFO** marks a recorded fact.
 | Misconfigured API returns a stack trace in Development | Information disclosure in dev only | Not applicable in Production |
 | Handler exceptions surface after commit | Editor may see an error for a successful publish | Handler kept trivial; documented (03 §9) |
 | Schema files copied into `tests/` | Noise | Gitignored |
-| Owner's `assets/images/` | Untracked | Not committed pending the owner's decision |
+| Owner's `assets/images/` | Untracked | **Resolved 2026-11-17:** committed at the owner's request (`090cd26`) |
 
 ---
 
@@ -314,8 +314,8 @@ changed the plan, and **INFO** marks a recorded fact.
 | Date | 2026-11-15 (overnight; times local, UTC−06:00) |
 | Scope | Design tokens, fonts, brand-asset pipeline, redesigned Razor templates, branded 404, tests, docs |
 | Automated checks | Claude Code, against the owner's running app (PID 28456). Razor and CSS changes are compiled at runtime, so no restart was needed |
-| Manual checks | Owner, MT-27 to MT-32 (pending) |
-| Git revision | Baseline `e4b329a`. This log is part of the Milestone 5 commit |
+| Manual checks | Owner, MT-27 to MT-32: **all passed** (confirmed 2026-11-17) |
+| Git revision | Baseline `e4b329a`; implementation `4eb42bf`; originals `090cd26`; this completion record is in the commit after `090cd26` |
 
 ## Inspection and inputs
 
@@ -347,23 +347,42 @@ changed the plan, and **INFO** marks a recorded fact.
 | M5-19 | `Test-BrandAssets.ps1 -SkipCms` (PS 7 and 5.1) | PASS | 34/34 |
 | M5-20 | Phase 7 diff review | PASS / FIXED | No unrelated changes, no unused CSS, no new packages; schema change (`storyHeading`, `storyText`) documented in 02 §3 and 05-assets §5; stale image references in 02 and 03 corrected |
 
-## Pending (owner)
+## Owner steps (confirmed 2026-11-17)
+
+The owner reported all steps complete: "Everything is fantastic."
 
 | # | Item | Status |
 |---|---|---|
-| M5-21 | MT-27/28: upload and assign botanical illustrations | NOT RUN |
-| M5-22 | MT-29: add farm-story properties and content | NOT RUN |
-| M5-23 | MT-30: run all test scripts | NOT RUN |
-| M5-24 | MT-31/32: visual and keyboard review | NOT RUN |
+| M5-21 | MT-27/28: upload and assign botanical illustrations | PASS (2026-11-16) |
+| M5-22 | MT-29: add farm-story properties and content | PASS (2026-11-17) |
+| M5-23 | MT-30: run all test scripts | PASS (2026-11-17) |
+| M5-24 | MT-31/32: visual and keyboard review | PASS (2026-11-17) |
+
+## Independent verification after the owner's steps (2026-11-17, read-only)
+
+App instance PID 11492, started 2026-11-16 11:45 local, `serverStatus: Run`.
+
+| # | Command / action | Result | Evidence |
+|---|---|---|---|
+| M5-25 | `Test-BrandAssets.ps1` (full, including CMS) | PASS | 37/37. Botanical checks: `vintage-heirloom-tomato-vine.png`, `vintage-botanical-basil-print.png`, `retro-zinnia-bouquet-screen-print.png`, each 200 `image/webp`, signed |
+| M5-26 | `Test-Site.ps1`, `Test-DeliveryApi.ps1`, `dotnet test --no-build` | PASS | 10/10 ("3 cards: 3 image(s), 0 placeholder(s)"); 14/14 (Zinnia `plantImage items=1`); 3/3 |
+| M5-27 | `GET /`: farm-story section | PASS | `section.story` with heading "Grown by hand, shared with joy", the two-line text, and `story-640.jpg` / `story-1280.jpg` |
+| M5-28 | Generated models (`InMemoryAuto/models.generated.cs`) | PASS | `HomePage.StoryHeading` and `HomePage.StoryText` exist (aliases `storyHeading`, `storyText`) |
+| M5-29 | Trace log (`umbraco/Logs`, 2026-11-16 onward) | PASS | Handler lines for `plantPage` Heirloom Tomato, Basil, Zinnia (18:15:09–18:15:31Z) and `homePage` (2026-11-18 00:56:29Z = 18:56 local on 11-17). No errors; only the known "no site URL" and application-URL warnings |
+| M5-30 | CDP device emulation, 7 pages (including a 404) × 375/768/1440 | PASS | 21/21: no horizontal overflow, 0 broken images, fonts loaded, correct hero source per width |
+| M5-31 | Originals: SHA-256 against 05-assets.md §2, then commit | PASS | 12/12 match; committed in `090cd26` (binary, no line-ending conversion); `Test-Prerequisites.ps1` Git hygiene and Tracked secrets PASS |
+| M5-32 | Owner's Growing Guide typo fix ("planing" → "planting") | PASS | Handler log `guidePage` Growing Guide at 2026-11-18 01:15:07Z (19:15 local on 11-17); page and Delivery API `bodyText` contain "planting", not "planing". Content change, so nothing to commit beyond these records |
+
+**Milestone 5 complete.**
 
 ## Known issues (Milestone 5)
 
 | Issue | Impact | Status |
 |---|---|---|
-| Botanical illustrations not yet in the Media Library | Plants still show placeholders; `Test-BrandAssets.ps1` reports 3 PENDING | Owner steps MT-27/28 |
-| Farm-story section hidden | Homepage lacks the story panel until content exists | Owner step MT-29 |
+| Botanical illustrations not yet in the Media Library | Plants showed placeholders; `Test-BrandAssets.ps1` reported 3 PENDING | **Resolved:** MT-27/28 done; 37/37 (M5-25) |
+| Farm-story section hidden | Homepage lacked the story panel until content existed | **Resolved:** MT-29 done (M5-27) |
 | 404 page has no navigation | Umbraco renders it without a content model | Logo and button link home; acceptable |
 | Footer botanical pattern not supplied | Footer uses CSS stripe bands | Replace if artwork is supplied |
 | Largest JPEGs 330–485 KB (screen-print texture) | Heavier desktop pages | `srcset` serves smaller files to small screens; could add WebP derivatives later |
-| Originals (32.6 MB) untracked | Derivatives cannot be rebuilt on another machine | Owner decision: commit (LFS), archive elsewhere, or ignore |
-| Placeholder media items remain in the Media Library | Clutter after MT-28 | Optional cleanup by the owner |
+| Originals (32.6 MB) untracked | Derivatives could not be rebuilt on another machine | **Resolved:** committed as plain Git objects (`090cd26`) |
+| Placeholder media items may remain in the Media Library | Clutter only; no page references them (M5-25, M5-26) | Optional cleanup by the owner; not checked |

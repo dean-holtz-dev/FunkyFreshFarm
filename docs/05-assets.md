@@ -23,8 +23,10 @@ file into the Media Library.
 ## 2. Provenance of the originals
 
 All artwork was generated separately by the owner for this fictional lab and supplied on
-2026-11-15 in `assets/images/`. The originals are **not committed** (12 PNGs, 32.6 MB; the owner's
-decision is pending) and are never modified by any script. Identify them by SHA-256 prefix:
+2026-11-15 in `assets/images/`. The originals (12 PNGs, 32.6 MB) were **committed on 2026-11-17**
+at the owner's request (commit `090cd26`, plain Git objects; no Git LFS, because there is no remote
+and no file exceeds 3.6 MB), so any clone can rebuild the derivatives. No script ever modifies them.
+Identify them by SHA-256 prefix (re-checked against the committed files on 2026-11-17):
 
 | Original file | Size | Pixels | Alpha | SHA-256 (first 16) | Role |
 |---|---|---|---|---|---|
@@ -92,6 +94,11 @@ is centre-cropped (or cropped around the editor's focal point). Plants without a
 "No image yet" placeholder card, and the profile page omits the figure.
 
 ## 5. Owner procedures (manual)
+
+**Status: all three completed by the owner** (plant images published 2026-11-16, farm story
+published 2026-11-17) and verified read-only; see the Milestone 5 section of
+[verification-log.md](verification-log.md). The procedures stay here for recreating the site from a
+fresh database.
 
 ### MT-27: Upload the botanical illustrations to the Media Library
 

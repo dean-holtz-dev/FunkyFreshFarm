@@ -22,7 +22,9 @@ and commercial or paid Umbraco extensions.
 | 2. Content modelling and Razor rendering | Complete: four Document Types, a homepage, a plant directory with plant pages, a growing guide, shared layout and navigation, responsive CSS, publishing exercises, and a site smoke test |
 | 3. Content Delivery API and .NET extensibility | Complete: Delivery API v2 enabled (public, published content only, no preview key), a `ContentPublishedNotification` logging handler with unit tests, and an API verification script |
 | 4. Source exploration and engineering review | Complete: source-backed architecture briefing against Umbraco commit `89c87c2` (tag `release-17.8.1`), operational review, and a tested hot-backup tool with a backup/restore runbook |
-| 5. Visual identity ("Farmstand Funk") | Code complete: design tokens, self-hosted Fraunces + DM Sans, branded header/footer, responsive hero, featured plants, plant profiles, guide illustration, branded 404, brand-asset pipeline and test. **Pending owner steps:** upload/assign the botanical illustrations and add the farm-story properties (docs/05-assets.md §5) |
+| 5. Visual identity ("Farmstand Funk") | Complete: design tokens, self-hosted Fraunces + DM Sans, branded header/footer, responsive art-directed hero, featured plants, farm story, botanical plant profiles, guide illustration, branded 404, brand-asset pipeline and test |
+
+**The lab is complete.** [docs/06-retrospective.md](docs/06-retrospective.md) tells the story of how the site was built, milestone by milestone, and how much (or how little) code it took.
 
 **Database-backed state.** The Document Types, Data Types, template records, pages, and media
 exist only in the local SQLite database and `wwwroot/media/`, not in Git. A fresh clone has the
@@ -151,8 +153,8 @@ FunkyFreshFarm/
 ├─ global.json                   SDK selection (10.0.x, latest feature band)
 ├─ .gitignore / .gitattributes   Repository-wide ignores; line-ending normalisation
 ├─ assets/
-│  ├─ images/                    Owner's original artwork (untracked; inputs to Build-BrandAssets and Media uploads)
-│  └─ placeholder-images/        Milestone 2 placeholder plant PNGs (replaced in the Media Library in Milestone 5)
+│  ├─ images/                    Owner's original artwork (committed; inputs to Build-BrandAssets and Media uploads)
+│  └─ placeholder-images/        Milestone 2 placeholder plant PNGs (superseded in the Media Library in Milestone 5)
 ├─ docs/
 │  ├─ 01-installation.md         Installation, configuration, architecture, backup, troubleshooting
 │  ├─ 02-content-model.md        Content model, backoffice recreation, Razor, publishing, testing
@@ -160,6 +162,7 @@ FunkyFreshFarm/
 │  ├─ 04-architecture.md         Source-backed architecture briefing, operational review, backup runbook
 │  ├─ 05-design-system.md        "Farmstand Funk" tokens, typography, components, responsive and accessibility rules
 │  ├─ 05-assets.md               Asset inventory, provenance, Git versus Media Library, owner upload procedures
+│  ├─ 06-retrospective.md        How the finished site was built, and how easy it turned out to be
 │  ├─ manual-test-checklist.md   Human verification steps and outcomes
 │  └─ verification-log.md        Commands run, results, evidence, known issues
 ├─ scripts/
@@ -194,6 +197,7 @@ FunkyFreshFarm/
 - [Delivery API and extensions](docs/03-api-and-extensions.md): API configuration, endpoints, JSON shapes, security, notification handler, end-to-end trace
 - [Architecture and engineering review](docs/04-architecture.md): startup and lifecycle traced through Umbraco's source, project boundaries, operational risks, testing, upgrades, backup/restore runbook
 - [Design system](docs/05-design-system.md) and [brand assets](docs/05-assets.md): palette and contrast, typography and licensing, components, responsive images, asset provenance and replacement
+- [Retrospective](docs/06-retrospective.md): the build from empty folder to branded site, what was easy, where the friction was, and the numbers
 - [Manual test checklist](docs/manual-test-checklist.md)
 - [Verification log](docs/verification-log.md)
 - [Umbraco 17 documentation](https://docs.umbraco.com/umbraco-cms/17.latest/)
